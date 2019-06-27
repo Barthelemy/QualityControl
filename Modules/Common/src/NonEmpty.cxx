@@ -36,7 +36,7 @@ ClassImp(o2::quality_control_modules::common::NonEmpty)
     auto result = Quality::Null;
 
     // The framework guarantees that the encapsulated object is of the accepted type.
-    auto* histo = dynamic_cast<TH1*>(mo->getObject());
+    auto histo = dynamic_pointer_cast<TH1>(mo->getObject());
 
     // assert(histo != nullptr);
     if (histo != nullptr) {

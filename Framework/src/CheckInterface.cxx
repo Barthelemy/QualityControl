@@ -18,7 +18,7 @@ std::string CheckInterface::getAcceptedType() { return "TObject"; }
 
 bool CheckInterface::isObjectCheckable(const MonitorObject* mo)
 {
-  TObject* encapsulated = mo->getObject();
+  std::shared_ptr<TObject> encapsulated = mo->getObject();
 
   if (encapsulated->IsA()->InheritsFrom(getAcceptedType().c_str())) {
     return true;

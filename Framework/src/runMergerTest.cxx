@@ -98,7 +98,7 @@ WorkflowSpec defineDataProcessing(ConfigContext const&)
           auto mo = dynamic_cast<MonitorObject*>(moArray->First());
 
           if (mo->getName() == "gauss") {
-            auto* g = dynamic_cast<TH1F*>(mo->getObject());
+            auto g = std::dynamic_pointer_cast<TH1F>(mo->getObject());
             std::string bins = "BINS:";
             for (int i = 0; i <= g->GetNbinsX(); i++) {
               bins += " " + std::to_string((int) g->GetBinContent(i));

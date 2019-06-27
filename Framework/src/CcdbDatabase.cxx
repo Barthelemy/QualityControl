@@ -143,8 +143,9 @@ std::string CcdbDatabase::retrieveJson(std::string taskName, std::string objectN
   if (monitor == nullptr) {
     return std::string();
   }
-  std::unique_ptr<TObject> obj(monitor->getObject());
-  monitor->setIsOwner(false);
+  std::shared_ptr<TObject> obj = monitor->getObject();
+//  std::unique_ptr<TObject> obj(monitor->getObject());
+//  monitor->setIsOwner(false);
   TString json = TBufferJSON::ConvertToJSON(obj.get());
   return json.Data();
 }

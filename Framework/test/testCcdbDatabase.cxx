@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(ccdb_retrieve, *utf::depends_on("ccdb_store"))
   test_fixture f;
   MonitorObject* mo = f.backend->retrieve("my/task", "asdf/asdf");
   BOOST_CHECK_NE(mo, nullptr);
-  TH1F* h1 = dynamic_cast<TH1F*>(mo->getObject());
+  std::shared_ptr<TH1F> h1 = dynamic_pointer_cast<TH1F>(mo->getObject());
   BOOST_CHECK_NE(h1, nullptr);
   BOOST_CHECK_EQUAL(h1->GetEntries(), 10000);
 }
@@ -141,21 +141,21 @@ BOOST_AUTO_TEST_CASE(ccdb_retrieve_former_versions, *utf::depends_on("ccdb_store
   // Retrieve old object stored at timestampStorage
   MonitorObject* mo = f.backend->retrieve("my/task", "asdf/asdf", initialTimestamp);
   BOOST_CHECK_NE(mo, nullptr);
-  TH1F* old = dynamic_cast<TH1F*>(mo->getObject());
+  auto old = dynamic_pointer_cast<TH1F>(mo->getObject());
   BOOST_CHECK_NE(old, nullptr);
   BOOST_CHECK_EQUAL(old->GetEntries(), 10000);
 
   // Retrieve latest object with timestamp
   MonitorObject* mo2 = f.backend->retrieve("my/task", "asdf/asdf", CcdbDatabase::getCurrentTimestamp());
   BOOST_CHECK_NE(mo2, nullptr);
-  TH1F* latest = dynamic_cast<TH1F*>(mo2->getObject());
+  auto latest = dynamic_pointer_cast<TH1F>(mo2->getObject());
   BOOST_CHECK_NE(latest, nullptr);
   BOOST_CHECK_EQUAL(latest->GetEntries(), 10001);
 
   // Retrieve latest object without timetsamp
   MonitorObject* mo3 = f.backend->retrieve("my/task", "asdf/asdf");
   BOOST_CHECK_NE(mo3, nullptr);
-  TH1F* latest2 = dynamic_cast<TH1F*>(mo3->getObject());
+  auto latest2 = dynamic_pointer_cast<TH1F>(mo3->getObject());
   BOOST_CHECK_NE(latest2, nullptr);
   BOOST_CHECK_EQUAL(latest2->GetEntries(), 10001);
 }

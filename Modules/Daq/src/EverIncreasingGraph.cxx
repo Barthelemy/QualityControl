@@ -37,7 +37,7 @@ ClassImp(o2::quality_control_modules::daq::EverIncreasingGraph)
   Quality EverIncreasingGraph::check(const MonitorObject* mo)
   {
     Quality result = Quality::Good;
-    auto* g = dynamic_cast<TGraph*>(mo->getObject());
+    auto g = dynamic_pointer_cast<TGraph>(mo->getObject());
 
     // simplistic and inefficient way to check that points are always increasing
     int nbPoints = g->GetN();
@@ -65,7 +65,7 @@ ClassImp(o2::quality_control_modules::daq::EverIncreasingGraph)
       return;
     }
 
-    auto* g = dynamic_cast<TGraph*>(mo->getObject());
+    auto g = dynamic_pointer_cast<TGraph>(mo->getObject());
     if (!g) {
       cerr << "MO should be a graph" << endl;
       return;

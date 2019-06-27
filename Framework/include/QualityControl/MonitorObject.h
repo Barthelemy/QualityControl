@@ -94,9 +94,9 @@ class MonitorObject : public TObject
   ///
   Quality getQuality() const;
 
-  TObject* getObject() const { return mObject; }
+  std::shared_ptr<TObject> getObject() const { return mObject; }
 
-  void setObject(TObject* object) { mObject = object; }
+  void setObject(TObject* object) { mObject.reset(object); }
 
   std::map<std::string, CheckDefinition> getChecks() const { return mChecks; }
 
@@ -146,7 +146,7 @@ class MonitorObject : public TObject
   TObject* DrawClone(Option_t* option) const override;
 
  private:
-  TObject* mObject;
+  std::shared_ptr<TObject> mObject;
   std::map<std::string /*checkName*/, CheckDefinition> mChecks;
   std::string mTaskName;
   std::map<std::string, std::string> mUserMetadata;
@@ -156,7 +156,7 @@ class MonitorObject : public TObject
   // TODO : maybe we should always be the owner ?
   bool mIsOwner;
 
-  ClassDefOverride(MonitorObject, 4);
+  ClassDefOverride(MonitorObject, 5);
 };
 
 } // namespace o2::quality_control::core

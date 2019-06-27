@@ -90,7 +90,7 @@ class ObjectsManager
 
   MonitorObject* getMonitorObject(std::string objectName);
 
-  TObject* getObject(std::string objectName);
+  std::shared_ptr<TObject> getObject(std::string objectName);
 
   TObjArray* getNonOwningArray() const
   {

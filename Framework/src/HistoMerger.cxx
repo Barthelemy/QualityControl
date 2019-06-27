@@ -54,9 +54,9 @@ void HistoMerger::run(framework::ProcessingContext& ctx)
         for (int i = 0; i < mMergedArray.GetEntries(); i++) {
           MonitorObject* mo = dynamic_cast<MonitorObject*>((*moArray)[i]);
           if (mo && std::strstr(mo->getObject()->ClassName(), "TH1") != nullptr) {
-            TH1* h = dynamic_cast<TH1*>(dynamic_cast<MonitorObject*>(mMergedArray[i])->getObject());
-            const TH1* hUpdate = dynamic_cast<TH1*>(mo->getObject());
-            h->Add(hUpdate);
+            std::shared_ptr<TH1> h = std::dynamic_pointer_cast<TH1>(dynamic_cast<MonitorObject*>(mMergedArray[i])->getObject());
+            const std::shared_ptr<TH1> hUpdate = std::dynamic_pointer_cast<TH1>(mo->getObject());
+            h->Add(hUpdate.get());
           }
         }
       }

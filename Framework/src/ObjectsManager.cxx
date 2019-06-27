@@ -105,7 +105,7 @@ MonitorObject* ObjectsManager::getMonitorObject(std::string objectName)
   }
 }
 
-TObject* ObjectsManager::getObject(std::string objectName)
+std::shared_ptr<TObject> ObjectsManager::getObject(std::string objectName)
 {
   MonitorObject* mo = getMonitorObject(objectName);
   return mo->getObject();

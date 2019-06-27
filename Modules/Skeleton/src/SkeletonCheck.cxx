@@ -36,7 +36,7 @@ Quality SkeletonCheck::check(const MonitorObject* mo)
   Quality result = Quality::Null;
 
   if (mo->getName() == "example") {
-    auto* h = dynamic_cast<TH1F*>(mo->getObject());
+    auto h = dynamic_pointer_cast<TH1F>(mo->getObject());
 
     result = Quality::Good;
 
@@ -57,7 +57,7 @@ std::string SkeletonCheck::getAcceptedType() { return "TH1"; }
 void SkeletonCheck::beautify(MonitorObject* mo, Quality checkResult)
 {
   if (mo->getName() == "example") {
-    auto* h = dynamic_cast<TH1F*>(mo->getObject());
+    auto h = dynamic_pointer_cast<TH1F>(mo->getObject());
 
     if (checkResult == Quality::Good) {
       h->SetFillColor(kGreen);

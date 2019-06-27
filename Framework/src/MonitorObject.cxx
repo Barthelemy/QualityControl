@@ -28,9 +28,9 @@ MonitorObject::MonitorObject() : TObject(), mObject(nullptr), mTaskName(""), mIs
 
 MonitorObject::~MonitorObject()
 {
-  if (mIsOwner && mObject != nullptr) {
-    delete mObject;
-  }
+//  if (mIsOwner && mObject != nullptr) {
+//    delete mObject;
+//  }
 }
 
 MonitorObject::MonitorObject(TObject* object, const std::string& taskName)

@@ -50,7 +50,7 @@ std::string MeanIsAbove::getAcceptedType() { return "TH1"; }
 
 Quality MeanIsAbove::check(const MonitorObject* mo)
 {
-  auto* th1 = dynamic_cast<TH1*>(mo->getObject());
+  auto th1 = dynamic_pointer_cast<TH1>(mo->getObject());
   if (!th1) {
     // TODO
     return Quality::Null;
@@ -71,7 +71,7 @@ void MeanIsAbove::beautify(MonitorObject* mo, Quality checkResult)
     return;
   }
 
-  auto* th1 = dynamic_cast<TH1*>(mo->getObject());
+  auto th1 = dynamic_pointer_cast<TH1>(mo->getObject());
 
   Double_t xMin = th1->GetXaxis()->GetXmin();
   Double_t xMax = th1->GetXaxis()->GetXmax();

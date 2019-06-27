@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(publisher_test)
   TObjString s("content");
   objectsManager.startPublishing(&s);
 
-  TObjString* s2 = (TObjString*)(objectsManager.getObject("content"));
+  std::shared_ptr<TObjString> s2 = dynamic_pointer_cast<TObjString>(objectsManager.getObject("content"));
   BOOST_CHECK_EQUAL(s.GetString(), s2->GetString());
   BOOST_CHECK_EQUAL(Quality::Null, objectsManager.getQuality("content"));
   MonitorObject* mo = nullptr;
