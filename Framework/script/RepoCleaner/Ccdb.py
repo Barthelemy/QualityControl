@@ -69,7 +69,10 @@ class Ccdb:
             raise
         paths = []
         for item in json['objects']:
-            paths.append(item['path'])
+            if 'path' in item:
+                paths.append(item['path'])
+            else:
+                logging.error(f"Item in json does not contain a path : {item}")
         return paths
 
     def getVersionsList(self, object_path: str) -> List[ObjectVersion]:
