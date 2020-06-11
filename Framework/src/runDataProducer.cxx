@@ -46,11 +46,16 @@ void customize(std::vector<ConfigParamSpec>& workflowOptions)
   workflowOptions.push_back(
     ConfigParamSpec{ "producers", VariantType::Int, 1, { "Number of producers. Each will have unique SubSpec, counting from 0." } });
   workflowOptions.push_back(
-    ConfigParamSpec{ "monitoring-url", VariantType::String, "", { "URL of the Monitoring backend" } });
+    ConfigParamSpec{ "monitoring-url", VariantType::String, "", { "URL of the Monitoring backend." } });
+  workflowOptions.push_back(
+    ConfigParamSpec{ "histo-producers", VariantType::Int, 0, { "Number of histograms producers. Each will have unique SubSpec, counting from 0." } });
 }
 
 #include <Framework/runDataProcessing.h>
 #include "QualityControl/DataProducer.h"
+#include "QualityControl/HistoProducer.h"
+//#include "QualityControl/ExamplePrinterSpec.h"
+#include <TH1F.h>
 
 using namespace o2::quality_control::core;
 
@@ -63,10 +68,36 @@ WorkflowSpec defineDataProcessing(const ConfigContext& config)
   uint64_t amount = config.options().get<int>("message-amount");
   size_t producers = config.options().get<int>("producers");
   std::string monitoringUrl = config.options().get<std::string>("monitoring-url");
+  size_t histoProducers = config.options().get<bool>("histo-producers");
 
   WorkflowSpec specs;
   for (size_t i = 0; i < producers; i++) {
     specs.push_back(getDataProducerSpec(minSize, maxSize, rate, amount, i, monitoringUrl, fill));
   }
+  for (size_t i = 0; i < histoProducers; i++) {
+    specs.push_back(getHistoProducerSpec(i));
+  }
+
+//  // Finally the printer
+  DataProcessorSpec printer{
+    "printer",
+    Inputs{
+      { "histo", "TST", "HISTO", 0 } },
+    Outputs{},
+    AlgorithmSpec{
+      (AlgorithmSpec::ProcessCallback)[](ProcessingContext & ctx){
+        //            LOG(INFO) << "printer invoked";
+        auto histo = ctx.inputs().get<TH1F*>("histo");
+  LOG(INFO) << "histo : " << histo->GetName() << " : " << histo->GetTitle();
+        std::string bins = "BINS:";
+        for (int i = 1; i <= histo->GetNbinsX(); i++) {
+          bins += " " + std::to_string((int) histo->GetBinContent(i));
+        }
+        LOG(INFO) << bins;
+}
+}
+  };
+  specs.push_back(printer);
+
   return specs;
 }
