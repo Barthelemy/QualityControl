@@ -54,7 +54,6 @@ void customize(std::vector<ConfigParamSpec>& workflowOptions)
 #include <Framework/runDataProcessing.h>
 #include "QualityControl/DataProducer.h"
 #include "QualityControl/HistoProducer.h"
-//#include "QualityControl/ExamplePrinterSpec.h"
 #include <TH1F.h>
 
 using namespace o2::quality_control::core;
@@ -82,20 +81,24 @@ WorkflowSpec defineDataProcessing(const ConfigContext& config)
   DataProcessorSpec printer{
     "printer",
     Inputs{
-      { "histo", "TST", "HISTO", 0 } },
+      { "histos", "TST", "HISTO", 0 } },
     Outputs{},
     AlgorithmSpec{
       (AlgorithmSpec::ProcessCallback)[](ProcessingContext & ctx){
         //            LOG(INFO) << "printer invoked";
-        auto histo = ctx.inputs().get<TH1F*>("histo");
-  LOG(INFO) << "histo : " << histo->GetName() << " : " << histo->GetTitle();
-        std::string bins = "BINS:";
-        for (int i = 1; i <= histo->GetNbinsX(); i++) {
-          bins += " " + std::to_string((int) histo->GetBinContent(i));
+        auto array = ctx.inputs().get<TObjArray*>("histos");
+
+        for (const auto tObject : *array) {
+          std::shared_ptr<TH1F> histo{ dynamic_cast<TH1F*>(tObject) };
+          LOG(INFO) << "histo : " << histo->GetName() << " : " << histo->GetTitle();
+          std::string bins = "BINS:";
+          for (int i = 1; i <= histo->GetNbinsX(); i++) {
+            bins += " " + std::to_string((int)histo->GetBinContent(i));
+          }
+          LOG(INFO) << bins;
         }
-        LOG(INFO) << bins;
-}
-}
+      }
+    }
   };
   specs.push_back(printer);
 

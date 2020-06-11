@@ -18,6 +18,7 @@
 #include <Common/Timer.h>
 #include <TH1F.h>
 #include <Common/Timer.h>
+#include <QualityControl/MonitorObjectCollection.h>
 
 using namespace o2::framework;
 
@@ -46,6 +47,7 @@ framework::AlgorithmSpec getHistoProducerAlgorithm(framework::ConcreteDataMatche
       std::default_random_engine generator(time(nullptr));
       std::shared_ptr<Timer> timer = nullptr;
       double period = 2; // how many seconds between the updates of the histogram
+      TH1F *histo = new TH1F("hello", "fromHistoProducer", 100, 0, 99);
 
       return [=](ProcessingContext& processingContext) mutable {
         // everything inside this lambda function is invoked in a loop, because this Data Processor has no inputs
@@ -62,11 +64,13 @@ framework::AlgorithmSpec getHistoProducerAlgorithm(framework::ConcreteDataMatche
         }
         timer->increment();
 
-        // generating data (size 1, type TH1F)
-        TH1F& histo = processingContext.outputs().make<TH1F>({ output.origin, output.description, output.subSpec }, "hello", "fromHistoProducer", 100, 0, 99);
-        histo.Fill(index); // todo set a proper value
+        // Prepare array
+        MonitorObjectCollection& monitorObjects = processingContext.outputs().make<MonitorObjectCollection>({ output.origin, output.description, output.subSpec });
+        // Generate data
+        histo->Fill(index); // todo set a proper value
+        monitorObjects.Add(histo);
 
-        LOG(INFO) << "sending histo " << histo.GetName() << " : " << histo.GetTitle();
+        LOG(INFO) << "sending array with 1 histo " << histo->GetName() << " : " << histo->GetTitle() << " : " << histo->GetEntries();
       };
     }
   };

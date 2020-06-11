@@ -57,22 +57,32 @@ o2::header::DataDescription CheckRunner::createCheckRunnerDataDescription(const 
   return description;
 }
 
-o2::framework::Inputs CheckRunner::createInputSpec(const std::string checkName, const std::string configSource)
-{
-  std::unique_ptr<ConfigurationInterface> config = ConfigurationFactory::getConfiguration(configSource);
-  o2::framework::Inputs inputs;
-  for (auto& [key, sourceConf] : config->getRecursive("qc.checks." + checkName + ".dataSource")) {
-    (void)key;
-    if (sourceConf.get<std::string>("type") == "Task") {
-      const std::string& taskName = sourceConf.get<std::string>("name");
-      ILOG(Info) << ">>>> Check name : " << checkName << " input task name: " << taskName << " " << TaskRunner::createTaskDataDescription(taskName).as<std::string>() << ENDM;
-      o2::framework::InputSpec input{ taskName, TaskRunner::createTaskDataOrigin(), TaskRunner::createTaskDataDescription(taskName) };
-      inputs.push_back(std::move(input));
-    }
-  }
-
-  return inputs;
-}
+//o2::framework::Inputs CheckRunner::createInputSpec(const std::string checkName, const std::string configSource)
+//{
+//  ILOG(Warning) << "AAAAAAAAAAAAAAAA" << ENDM;
+//  std::unique_ptr<ConfigurationInterface> config = ConfigurationFactory::getConfiguration(configSource);
+//  o2::framework::Inputs inputs;
+//  for (auto& [key, sourceConf] : config->getRecursive("qc.checks." + checkName + ".dataSource")) {
+//    (void)key;
+//    if (sourceConf.get<std::string>("type") == "Task") {
+//      const std::string& taskName = sourceConf.get<std::string>("name");
+//      ILOG(Info) << ">>>> Check name : " << checkName << " input task name: " << taskName << " " << TaskRunner::createTaskDataDescription(taskName).as<std::string>() << ENDM;
+//      o2::framework::InputSpec input{ taskName, TaskRunner::createTaskDataOrigin(), TaskRunner::createTaskDataDescription(taskName) };
+//      inputs.push_back(std::move(input));
+//    } else if (sourceConf.get<std::string>("type") == "ExternalTask") {
+//      ILOG(Info) << "EXTERNAL TASK" << ENDM;
+//      const std::string& taskName = sourceConf.get<std::string>("name");
+//      const std::string& externalQuery = config->getString("qc.externalTasks." + taskName + ".query").get();
+//      ILOG(Info) << "query : " << externalQuery << ENDM;
+//      ILOG(Info) << ">>>> Check name : " << checkName << " input external task name: " << taskName << " " << TaskRunner::createTaskDataDescription(taskName).as<std::string>() << ENDM;
+////      o2::framework::InputSpec input{ taskName, TaskRunner::createTaskDataOrigin(), TaskRunner::createTaskDataDescription(taskName) };
+//      framework::Inputs input = o2::framework::DataDescriptorQueryBuilder::parse(externalQuery.c_str());
+//      inputs.push_back(std::move(input.at(0)));
+//    }
+//  }
+//
+//  return inputs;
+//}
 
 std::size_t CheckRunner::hash(std::string inputString)
 {

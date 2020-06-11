@@ -109,7 +109,7 @@ class CheckRunner : public framework::Task
 
   /// \brief Unified DataDescription naming scheme for all checkers
   static o2::header::DataDescription createCheckRunnerDataDescription(const std::string taskName);
-  static o2::framework::Inputs createInputSpec(const std::string checkName, const std::string configSource);
+//  static o2::framework::Inputs createInputSpec(const std::string checkName, const std::string configSource);
 
   std::string getDeviceName() { return mDeviceName; };
   static std::string createCheckRunnerIdString() { return "QC-CHECK-RUNNER"; };
