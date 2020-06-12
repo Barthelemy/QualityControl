@@ -103,7 +103,7 @@ void Check::initConfig(std::string checkName)
         const std::string& externalQuery = config->getString("qc.externalTasks." + taskName + ".query").get();
         ILOG(Info) << "query : " << externalQuery << ENDM;
         framework::Inputs input = o2::framework::DataDescriptorQueryBuilder::parse(externalQuery.c_str());
-        mInputs.push_back(std::move(input.at(0)));
+        mInputs.push_back(std::move(input.at(0))); // todo don't take only the last one
       }
 
       /*
