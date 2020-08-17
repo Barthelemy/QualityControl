@@ -16,6 +16,7 @@
 #include "Example/ExampleTask.h"
 #include "QualityControl/QcInfoLogger.h"
 #include <TH1.h>
+#include <TF2.h>
 
 using namespace std;
 
@@ -101,10 +102,12 @@ void ExampleTask::monitorData(o2::framework::ProcessingContext& ctx)
     }
   }
 
-  mTH2->FillRandom("gaus", 1);
-  mTH2colz->FillRandom("gaus", 1);
-  mTH2colzGrid->FillRandom("gaus", 1);
-  mTH2gridlog->FillRandom("gaus", 1);
+  TF2 *xyg = new TF2("xyg","xygaus",0,10,0,10);
+  xyg->SetParameters(1,5,2,5,2); //amplitude, meanx,sigmax,meany,sigmay h->FillRandom("xyg");
+  mTH2->FillRandom("xyg", 1);
+  mTH2colz->FillRandom("xyg", 1);
+  mTH2colzGrid->FillRandom("xyg", 1);
+  mTH2gridlog->FillRandom("xyg", 1);
 }
 
 void ExampleTask::endOfCycle()
