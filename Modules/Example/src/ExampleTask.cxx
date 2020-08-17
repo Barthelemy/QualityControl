@@ -100,6 +100,11 @@ void ExampleTask::monitorData(o2::framework::ProcessingContext& ctx)
       break;
     }
   }
+
+  mTH2->FillRandom("gaus", 1);
+  mTH2colz->FillRandom("gaus", 1);
+  mTH2colzGrid->FillRandom("gaus", 1);
+  mTH2gridlog->FillRandom("gaus", 1);
 }
 
 void ExampleTask::endOfCycle()
