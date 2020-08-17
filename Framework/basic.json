@@ -25,8 +25,8 @@
     "tasks": {
       "QcTask": {
         "active": "true",
-        "className": "o2::quality_control_modules::skeleton::SkeletonTask",
-        "moduleName": "QcSkeleton",
+        "className": "o2::quality_control_modules::example::ExampleTask",
+        "moduleName": "QcExample",
         "detectorName": "TST",
         "cycleDurationSeconds": "10",
         "maxNumberCycles": "-1",

@@ -47,6 +47,20 @@ void ExampleTask::initialize(o2::framework::InitContext& /*ctx*/)
 
   // Extendable axis
   mHistos[0]->SetCanExtend(TH1::kXaxis);
+
+  // Drawing option tests
+  mTH2 = new TH2F("mTH2", "mTH2", 20, 0, 9, 20, 0, 9);
+  getObjectsManager()->startPublishing(mTH2);
+  mTH2colz = new TH2F("mTH2colz", "mTH2", 20, 0, 9, 20, 0, 9);
+  getObjectsManager()->startPublishing(mTH2colz);
+  getObjectsManager()->setDefaultDrawOptions(mTH2colz, "colz");
+  mTH2colzGrid = new TH2F("mTH2colzGrid", "mTH2", 20, 0, 9, 20, 0, 9);
+  getObjectsManager()->startPublishing(mTH2colzGrid);
+  getObjectsManager()->setDefaultDrawOptions(mTH2colzGrid, "colz");
+  getObjectsManager()->setDisplayHint(mTH2colzGrid, "grid");
+  mTH2gridlog = new TH2F("mTH2gridlog", "mTH2", 20, 0, 9, 20, 0, 9);
+  getObjectsManager()->startPublishing(mTH2gridlog);
+  getObjectsManager()->setDisplayHint(mTH2gridlog, "gridx logx gridy logy");
 }
 
 void ExampleTask::publishHisto(int i)

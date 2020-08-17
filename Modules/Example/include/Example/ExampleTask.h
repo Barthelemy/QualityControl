@@ -6,6 +6,7 @@
 #ifndef QC_MODULE_EXAMPLE_EXAMPLETASK_H
 #define QC_MODULE_EXAMPLE_EXAMPLETASK_H
 
+#include <TH2F.h>
 #include "QualityControl/TaskInterface.h"
 
 class TH1F;
@@ -42,6 +43,7 @@ class ExampleTask final : public TaskInterface
  private:
   int mNumberCycles;
   TH1F* mHistos[25];
+  TH2F *mTH2, *mTH2colz, *mTH2colzGrid, *mTH2gridlog;
   void publishHisto(int i);
 };
 
