@@ -58,7 +58,7 @@ void ExampleTask::initialize(o2::framework::InitContext& /*ctx*/)
   mTH2colzGrid = new TH2F("mTH2colzGrid", "mTH2colzGrid", 20, 0, 9, 20, 0, 9);
   getObjectsManager()->startPublishing(mTH2colzGrid);
   getObjectsManager()->setDefaultDrawOptions(mTH2colzGrid, "colz");
-  getObjectsManager()->setDisplayHint(mTH2colzGrid, "grid");
+  getObjectsManager()->setDisplayHint(mTH2colzGrid, "gridx");
   mTH2gridlog = new TH2F("mTH2gridlog", "mTH2gridlog", 20, 0, 9, 20, 0, 9);
   getObjectsManager()->startPublishing(mTH2gridlog);
   getObjectsManager()->setDisplayHint(mTH2gridlog, "gridx logx gridy logy");
