@@ -34,23 +34,29 @@ framework::DataProcessorSpec getHistoProducerSpec(size_t subspec, size_t nbHisto
     "histoProducer-" + std::to_string(subspec),
     Inputs{},
     Outputs{
-      { { "out" }, "TST", "HISTO", static_cast<SubSpec>(subspec) } },
-    getHistoProducerAlgorithm({ "TST", "HISTO", static_cast<SubSpec>(subspec) }, nbHistograms, noTobjArray)
+      { { "out" }, "TST", "HISTOA", static_cast<SubSpec>(subspec) },
+      { { "out2" }, "TST", "HISTOB", static_cast<SubSpec>(subspec) }},
+    getHistoProducerAlgorithm({{ "TST", "HISTOA", static_cast<SubSpec>(subspec) },
+                                       { "TST", "HISTOB", static_cast<SubSpec>(subspec) }}, nbHistograms, noTobjArray)
   };
 }
 
-framework::AlgorithmSpec getHistoProducerAlgorithm(framework::ConcreteDataMatcher output, size_t nbHistograms, bool noTobjArray)
+framework::AlgorithmSpec getHistoProducerAlgorithm(std::vector<framework::ConcreteDataMatcher> outputs, size_t nbHistograms, bool noTobjArray)
 {
   return AlgorithmSpec{
     [=](InitContext&) {
       // this is the initialization code
       std::shared_ptr<Timer> timer = nullptr;
       double period = 2; // how many seconds between the updates of the histogram
-      vector<TH1F*> allHistos;
-      allHistos.reserve(nbHistograms);
-      for (size_t i = 0; i < nbHistograms; i++) {
-        TH1F* histo = new TH1F(string("hello_") + i, "fromHistoProducer", 100, -3, 3);
-        allHistos.push_back(histo);
+      map<int, vector<TH1F*> > allHistos;
+      int j = -1;
+      for (auto output: outputs) {
+        j++;
+        allHistos[j].reserve(nbHistograms);
+        for (size_t i = 0; i < nbHistograms; i++) {
+          TH1F* histo = new TH1F(string("hello_") + i + "_" + j, "fromHistoProducer", 100, -3, 3);
+          allHistos[j].push_back(histo);
+        }
       }
 
       return [=](ProcessingContext& processingContext) mutable {
@@ -66,22 +72,27 @@ framework::AlgorithmSpec getHistoProducerAlgorithm(framework::ConcreteDataMatche
         }
         timer->increment();
 
-        if (noTobjArray) { // just send the histogram, not a tobjarray
-          TH1F& th1f = processingContext.outputs().make<TH1F>({ output.origin, output.description, output.subSpec }, "hello", "fromHistoProducer", 100, -3, 3);
-          allHistos[0]->FillRandom("gaus", 100);
-          th1f.Add(allHistos[0]);
-          LOG(INFO) << "sending 1 histo named `hello`.";
-          return;
-        }
+        j=-1;
+        for(framework::ConcreteDataMatcher output: outputs) {
+          j++;
+          if (noTobjArray) { // just send the histogram, not a tobjarray
+            TH1F& th1f = processingContext.outputs().make<TH1F>({ output.origin, output.description, output.subSpec }, "hello", "fromHistoProducer", 100, -3, 3);
+            allHistos[j][0]->FillRandom("gaus", 100);
+            th1f.Add(allHistos[j][0]);
+            LOG(INFO) << "sending 1 histo named `hello`.";
+            return;
+          }
 
-        // Prepare the tobjarray
-        MonitorObjectCollection& monitorObjects = processingContext.outputs().make<MonitorObjectCollection>({ output.origin, output.description, output.subSpec });
-        // Fill histograms
-        for (size_t i = 0; i < nbHistograms; i++) {
-          allHistos[i]->FillRandom("gaus", 100);
-          monitorObjects.Add(allHistos[i]);
+
+          // Prepare the tobjarray
+          MonitorObjectCollection& monitorObjects = processingContext.outputs().make<MonitorObjectCollection>({ output.origin, output.description, output.subSpec });
+          // Fill histograms
+          for (size_t i = 0; i < nbHistograms; i++) {
+            allHistos[j][i]->FillRandom("gaus", 100);
+            monitorObjects.Add(allHistos[j][i]);
+          }
+          LOG(INFO) << "Sending a TObjArray with " << nbHistograms << " histos named `hello_<index>`.";
         }
-        LOG(INFO) << "Sending a TObjArray with " << nbHistograms << " histos named `hello_<index>`.";
       };
     }
   };

@@ -34,7 +34,7 @@ framework::DataProcessorSpec getHistoProducerSpec(size_t index, size_t nbHistogr
 /// \param output   Origin, Description and SubSpecification of data to be produced
 /// \param index    The value the producer should produce.
 /// \return         An histogram producer algorithm
-framework::AlgorithmSpec getHistoProducerAlgorithm(framework::ConcreteDataMatcher output, size_t nbHistograms, bool noTobjArray);
+framework::AlgorithmSpec getHistoProducerAlgorithm(std::vector<framework::ConcreteDataMatcher> outputs, size_t nbHistograms, bool noTobjArray);
 
 /// \brief Returns a printer that prints histograms coming from {"TST", "HISTO", <index>}
 ///

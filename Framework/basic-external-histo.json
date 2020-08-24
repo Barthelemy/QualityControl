@@ -27,7 +27,7 @@
     "externalTasks": {
       "External-1": {
         "active": "true",
-        "query": "External-1:TST/HISTO/0", "": "Use the task name as binding (encouraged)"
+        "query": "External-1:TST/HISTOA/0;External-1:TST/HISTOB/0", "": "Use the task name as binding (encouraged)"
       }
     },
     "checks": {
@@ -40,7 +40,7 @@
         "dataSource": [{
           "type": "ExternalTask",
           "name": "External-1",
-          "MOs": ["hello_0"]
+          "MOs": ["hello_0_0"]
         }]
       }
     }
