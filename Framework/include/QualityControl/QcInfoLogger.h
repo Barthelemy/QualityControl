@@ -53,7 +53,7 @@ class QcInfoLogger : public AliceO2::InfoLogger::InfoLogger
 
  private:
   QcInfoLogger();
-  ~QcInfoLogger() override = default;
+  ~QcInfoLogger() override;
 
   // Disallow copying
   QcInfoLogger& operator=(const QcInfoLogger&) = delete;
