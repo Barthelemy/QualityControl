@@ -29,7 +29,9 @@ Thanks!
 
 ## Requirements
 
-A Linux machine (CC7 or Ubuntu) or a Mac. See the O2 instructions below for the exact supported versions.
+A CC7 machine or a Mac. See the O2 instructions below for the exact supported versions.
+
+Ubuntu is not a supported platform in O2. We are aware that users have successfully used the QC on it. An alternative is to use a VM or a container with CC7 to develop on Ubuntu. 
 
 ## Setup
 
@@ -40,7 +42,6 @@ A Linux machine (CC7 or Ubuntu) or a Mac. See the O2 instructions below for the 
    2. Prerequisites  
         * [CC7](https://alice-doc.github.io/alice-analysis-tutorial/building/prereq-centos7.html)
         * [Mac](https://alice-doc.github.io/alice-analysis-tutorial/building/prereq-macos.html)
-        * [Ubuntu](https://alice-doc.github.io/alice-analysis-tutorial/building/prereq-ubuntu.html)
    3. [Install aliBuild](https://alice-doc.github.io/alice-analysis-tutorial/building/custom.html#get-or-upgrade-alibuild)
    4. [Check setup and build O2](https://alice-doc.github.io/alice-analysis-tutorial/building/build.html)
 
@@ -51,7 +52,7 @@ A Linux machine (CC7 or Ubuntu) or a Mac. See the O2 instructions below for the 
     * `aliBuild build O2Suite --defaults o2`
     * At this point you might encounter a message about missing system requirements. Run `aliDoctor O2Suite` to get a full information about what is missing and how to install it.
 
-Note: on non-CC7 systems, you can also use the alibuild "defaults" called `o2-dataflow` to avoid building simulation related packages.
+Note: on Mac, you can also use the alibuild "defaults" called `o2-dataflow` to avoid building simulation related packages.
 
 ### Environment loading
 
