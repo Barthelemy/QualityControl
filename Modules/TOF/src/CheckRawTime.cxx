@@ -53,8 +53,8 @@ Quality CheckRawTime::check(std::map<std::string, std::shared_ptr<MonitorObject>
 
   // if ((histname.EndsWith("RawsTime")) || (histname.Contains("RawsTime") && suffixTrgCl)) {
   if (mo->getName().find("RawsTime") != std::string::npos) {
-    auto* h = dynamic_cast<TH1F*>(mo->getObject());
-    // if (!suffixTrgCl)
+    auto* h = const_cast<TH1F*>(dynamic_cast<const TH1F*>(mo->getObject()));
+// if (!suffixTrgCl)
     //   h->SetBit(AliQAv1::GetImageBit(), drawRawsTimeSumImage);
     // if (suffixTrgCl) {
     //   h->SetBit(AliQAv1::GetImageBit(), kFALSE);
@@ -92,7 +92,7 @@ std::string CheckRawTime::getAcceptedType() { return "TH1"; }
 void CheckRawTime::beautify(std::shared_ptr<MonitorObject> mo, Quality checkResult)
 {
   if (mo->getName().find("RawsTime") != std::string::npos) {
-    auto* h = dynamic_cast<TH1F*>(mo->getObject());
+    auto* h = const_cast<TH1F*>(dynamic_cast<const TH1F*>(mo->getObject()));
     TPaveText* msg = new TPaveText(0.5, 0.5, 0.9, 0.75, "blNDC");
     h->GetListOfFunctions()->Add(msg);
     msg->SetBorderSize(1);

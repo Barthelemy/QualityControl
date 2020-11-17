@@ -56,7 +56,7 @@ class ExamplePrinterSpec : public framework::Task
       LOG(INFO) << "First element is not a MonitorObject";
       return;
     }
-    auto* histo = dynamic_cast<TH1F*>(mo->getObject());
+    const auto* histo = dynamic_cast<const TH1F*>(mo->getObject());
     if (histo == nullptr) {
       LOG(INFO) << "MonitorObject does not contain a TH1";
       return;

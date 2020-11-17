@@ -50,7 +50,7 @@ std::string MeanIsAbove::getAcceptedType() { return "TH1"; }
 Quality MeanIsAbove::check(std::map<std::string, std::shared_ptr<MonitorObject>>* moMap)
 {
   auto mo = moMap->begin()->second;
-  auto* th1 = dynamic_cast<TH1*>(mo->getObject());
+  auto* th1 = const_cast<TH1F*>(dynamic_cast<const TH1F*>(mo->getObject()));
   if (!th1) {
     // TODO
     return Quality::Null;
@@ -71,7 +71,7 @@ void MeanIsAbove::beautify(std::shared_ptr<MonitorObject> mo, Quality checkResul
     return;
   }
 
-  auto* th1 = dynamic_cast<TH1*>(mo->getObject());
+  auto* th1 = const_cast<TH1F*>(dynamic_cast<const TH1F*>(mo->getObject()));
 
   Double_t xMin = th1->GetXaxis()->GetXmin();
   Double_t xMax = th1->GetXaxis()->GetXmax();

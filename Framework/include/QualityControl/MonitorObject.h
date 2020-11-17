@@ -43,7 +43,7 @@ class MonitorObject : public TObject
  public:
   /// Default constructor
   MonitorObject();
-  MonitorObject(TObject* object, const std::string& taskName, const std::string& detectorName = "DET");
+  MonitorObject(const TObject* object, const std::string& taskName, const std::string& detectorName = "DET");
   /// Destructor
   ~MonitorObject() override;
 
@@ -68,7 +68,7 @@ class MonitorObject : public TObject
   /// @return The name as "{getTaskName()}/{getName())}.
   const std::string getFullName() const { return getTaskName() + "/" + getName(); }
 
-  TObject* getObject() const { return mObject; }
+  const TObject* getObject() const { return mObject; }
 
   void setObject(TObject* object) { mObject = object; }
 
@@ -110,7 +110,7 @@ class MonitorObject : public TObject
   void setDescription(const std::string& description);
 
  private:
-  TObject* mObject;
+  const TObject* mObject;
   std::string mTaskName;
   std::string mDetectorName;
   std::map<std::string, std::string> mUserMetadata;

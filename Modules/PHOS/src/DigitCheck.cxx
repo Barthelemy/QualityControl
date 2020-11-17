@@ -37,28 +37,28 @@ Quality DigitCheck::check(std::map<std::string, std::shared_ptr<MonitorObject>>*
   Quality result = Quality::Good;
 
   if (mo->getName() == "digitAmplitudePHOS") {
-    auto* h = dynamic_cast<TH1*>(mo->getObject());
+    auto* h = dynamic_cast<const TH1*>(mo->getObject());
     if (h->GetEntries() == 0)
       result = Quality::Bad;
   }
   if (mo->getName() == "digitAmplitudeDCAL") {
-    auto* h = dynamic_cast<TH1*>(mo->getObject());
+    auto* h = dynamic_cast<const TH1*>(mo->getObject());
     if (h->GetEntries() == 0)
       result = Quality::Bad;
   }
   if (mo->getName() == "digitAmplitudeHG") {
-    auto* h = dynamic_cast<TH2*>(mo->getObject());
+    auto* h = dynamic_cast<const TH2*>(mo->getObject());
     if (h->GetEntries() == 0)
       result = Quality::Bad;
   }
   if (mo->getName() == "digitAmplitudeLG") {
-    auto* h = dynamic_cast<TH2*>(mo->getObject());
+    auto* h = dynamic_cast<const TH2*>(mo->getObject());
     if (h->GetEntries() == 0)
       result = Quality::Bad;
   }
 
   if (mo->getName() == "digitTimeHG") {
-    auto* h = dynamic_cast<TH2*>(mo->getObject());
+    auto* h = dynamic_cast<const TH2*>(mo->getObject());
     if (h->GetEntries() == 0)
       result = Quality::Bad;
     else {
@@ -71,7 +71,7 @@ Quality DigitCheck::check(std::map<std::string, std::shared_ptr<MonitorObject>>*
   }
 
   if (mo->getName() == "digitTimeLG") {
-    auto* h = dynamic_cast<TH2*>(mo->getObject());
+    auto* h = dynamic_cast<const TH2*>(mo->getObject());
     if (h->GetEntries() == 0)
       result = Quality::Bad;
     else {
@@ -90,7 +90,7 @@ std::string DigitCheck::getAcceptedType() { return "TH1"; }
 void DigitCheck::beautify(std::shared_ptr<MonitorObject> mo, Quality checkResult)
 {
   if (mo->getName().find("Time") != std::string::npos) {
-    auto* h = dynamic_cast<TH2*>(mo->getObject());
+    auto* h = const_cast<TH2*>(dynamic_cast<const TH2*>(mo->getObject()));
     TPaveText* msg = new TPaveText(0.5, 0.5, 0.9, 0.75, "NDC");
     h->GetListOfFunctions()->Add(msg);
     msg->SetName(Form("%s_msg", mo->GetName()));
@@ -116,7 +116,7 @@ void DigitCheck::beautify(std::shared_ptr<MonitorObject> mo, Quality checkResult
     h->SetLineColor(kBlack);
   }
   if (mo->getName().find("Amplitude") != std::string::npos) {
-    auto* h = dynamic_cast<TH1*>(mo->getObject());
+    auto* h = const_cast<TH1*>(dynamic_cast<const TH1*>(mo->getObject()));
     TPaveText* msg = new TPaveText(0.5, 0.5, 0.9, 0.75, "NDC");
     h->GetListOfFunctions()->Add(msg);
     msg->SetName(Form("%s_msg", mo->GetName()));

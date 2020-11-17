@@ -61,7 +61,7 @@ Quality PhysicsCheck::check(std::map<std::string, std::shared_ptr<MonitorObject>
 
     (void)moName;
     if (mo->getName().find("QcMuonChambers_Occupancy_Elec") != std::string::npos) {
-      auto* h = dynamic_cast<TH2F*>(mo->getObject());
+      auto* h = dynamic_cast<const TH2F*>(mo->getObject());
       if (!h)
         return result;
 
@@ -105,7 +105,7 @@ void PhysicsCheck::beautify(std::shared_ptr<MonitorObject> mo, Quality checkResu
   //std::cout<<"PhysicsCheck::beautify() called"<<std::endl;
   //std::cout<<"===================================="<<std::endl;
   if (mo->getName().find("QcMuonChambers_Occupancy_Elec") != std::string::npos) {
-    auto* h = dynamic_cast<TH2F*>(mo->getObject());
+    auto* h = const_cast<TH2F*>(dynamic_cast<const TH2F*>(mo->getObject()));
     h->SetDrawOption("colz");
     TPaveText* msg = new TPaveText(0.1, 0.9, 0.9, 0.95, "NDC");
     h->GetListOfFunctions()->Add(msg);

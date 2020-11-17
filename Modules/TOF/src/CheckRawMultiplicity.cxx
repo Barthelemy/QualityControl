@@ -69,8 +69,8 @@ Quality CheckRawMultiplicity::check(std::map<std::string, std::shared_ptr<Monito
   for (auto& [moName, mo] : *moMap) {
     (void)moName;
     if (mo->getName() == "TOFRawsMulti") {
-      auto* h = dynamic_cast<TH1I*>(mo->getObject());
-      // if (!suffixTrgCl)
+      auto* h = const_cast<TH1I*>(dynamic_cast<const TH1I*>(mo->getObject()));
+// if (!suffixTrgCl)
       //   h->SetBit(AliQAv1::GetImageBit(), drawRawsSumImage);
       // if (suffixTrgCl) {
       //   h->SetBit(AliQAv1::GetImageBit(), kFALSE); //clones not shown by default
@@ -159,7 +159,7 @@ std::string CheckRawMultiplicity::getAcceptedType() { return "TH1I"; }
 void CheckRawMultiplicity::beautify(std::shared_ptr<MonitorObject> mo, Quality checkResult)
 {
   if (mo->getName() == "TOFRawsMulti") {
-    auto* h = dynamic_cast<TH1I*>(mo->getObject());
+    auto* h = const_cast<TH1I*>(dynamic_cast<const TH1I*>(mo->getObject()));
     TPaveText* msg = new TPaveText(0.5, 0.5, 0.9, 0.75, "blNDC");
     h->GetListOfFunctions()->Add(msg);
     msg->SetBorderSize(1);

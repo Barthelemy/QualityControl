@@ -112,9 +112,9 @@ void TrendingTaskITSFhr::trendValues(repository::DatabaseInterface& qcdb)
         ntreeentries = (Int_t)mTrend->GetEntries() + 1;
         runlist.push_back(std::to_string(mMetaData.runNumber));
       }
-      TObject* obj = mo ? mo->getObject() : nullptr;
+      const TObject* obj = mo ? mo->getObject() : nullptr;
       if (obj) {
-        mReductors[dataSource.name]->update(obj);
+        mReductors[dataSource.name]->update(const_cast<TObject*>(obj));
       }
     } else if (dataSource.type == "repository-quality") {
       auto qo = qcdb.retrieveQO(dataSource.path + "/" + dataSource.name);

@@ -36,7 +36,7 @@ Quality RawQcCheck::check(std::map<std::string, std::shared_ptr<MonitorObject>>*
 
     (void)moName;
     if (mo->getName() == "mDetElemID") {
-      auto* h = dynamic_cast<TH1F*>(mo->getObject());
+      auto* h = const_cast<TH1F*>(dynamic_cast<const TH1F*>(mo->getObject()));
 
       result = Quality::Good;
 
@@ -78,7 +78,7 @@ std::string RawQcCheck::getAcceptedType() { return "TH1"; }
 void RawQcCheck::beautify(std::shared_ptr<MonitorObject> mo, Quality checkResult)
 {
   if (mo->getName() == "mDetElemID") {
-    auto* h = dynamic_cast<TH1F*>(mo->getObject());
+    auto* h = const_cast<TH1F*>(dynamic_cast<const TH1F*>(mo->getObject()));
 
     if (checkResult == Quality::Good) {
       h->SetFillColor(kGreen);

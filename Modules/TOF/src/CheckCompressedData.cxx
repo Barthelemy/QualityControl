@@ -46,7 +46,7 @@ Quality CheckCompressedData::check(std::map<std::string, std::shared_ptr<Monitor
   for (auto& [moName, mo] : *moMap) {
     (void)moName;
     if (mo->getName() == "hDiagnostic") {
-      auto* h = dynamic_cast<TH2F*>(mo->getObject());
+      auto* h = const_cast<TH2F*>(dynamic_cast<const TH2F*>(mo->getObject()));
       result = Quality::Good;
       for (int i = 1; i < h->GetNbinsX(); i++) {
         for (int j = 1; j < h->GetNbinsY(); j++) {
@@ -68,7 +68,7 @@ std::string CheckCompressedData::getAcceptedType() { return "TH2F"; }
 void CheckCompressedData::beautify(std::shared_ptr<MonitorObject> mo, Quality checkResult)
 {
   if (mo->getName() == "hDiagnostic") {
-    auto* h = dynamic_cast<TH2F*>(mo->getObject());
+    auto* h = const_cast<TH2F*>(dynamic_cast<const TH2F*>(mo->getObject()));
     TPaveText* msg = new TPaveText(0.9, 0.1, 1.0, 0.5, "blNDC");
     h->GetListOfFunctions()->Add(msg);
     msg->SetBorderSize(1);

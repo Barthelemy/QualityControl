@@ -42,7 +42,7 @@ Quality CheckDiagnostics::check(std::map<std::string, std::shared_ptr<MonitorObj
   for (auto& [moName, mo] : *moMap) {
     (void)moName;
     if (mo->getName() == "DRMCounter") {
-      auto* h = dynamic_cast<TH2F*>(mo->getObject());
+      auto* h = const_cast<TH2F*>(dynamic_cast<const TH2F*>(mo->getObject()));
       if (h->GetEntries() == 0) {
         result = Quality::Medium;
       }
@@ -57,7 +57,7 @@ void CheckDiagnostics::beautify(std::shared_ptr<MonitorObject> mo, Quality check
 {
   ILOG(Info, Support) << "USING BEAUTIFY";
   if (mo->getName() == "DRMCounter") {
-    auto* h = dynamic_cast<TH1F*>(mo->getObject());
+    auto* h = const_cast<TH1F*>(dynamic_cast<const TH1F*>(mo->getObject()));
     TPaveText* msg = new TPaveText(0.5, 0.5, 0.9, 0.75, "NDC");
     h->GetListOfFunctions()->Add(msg);
     msg->Draw();

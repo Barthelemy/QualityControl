@@ -139,7 +139,7 @@ void CcdbDatabase::storeMO(std::shared_ptr<o2::quality_control::core::MonitorObj
   }
 
   // extract object and metadata from MonitorObject
-  TObject* obj = mo->getObject();
+  const TObject* obj = mo->getObject();
   metadata["qc_detector_name"] = mo->getDetectorName();
   metadata["qc_task_name"] = mo->getTaskName();
   metadata["ObjectType"] = mo->getObject()->IsA()->GetName(); // ObjectType says TObject and not MonitorObject due to a quirk in the API. Once fixed, remove this.
@@ -269,7 +269,7 @@ std::string CcdbDatabase::retrieveJson(std::string path, long timestamp, const s
   }
 
   // Convert object to JSON string
-  TObject* toConvert = nullptr;
+  const TObject* toConvert = nullptr;
   if (tobj->IsA() == MonitorObject::Class()) { // a full MO -> pre-v0.25
     std::shared_ptr<MonitorObject> mo(dynamic_cast<MonitorObject*>(tobj));
     toConvert = mo->getObject();

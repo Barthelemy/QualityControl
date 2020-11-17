@@ -40,7 +40,7 @@ Quality ChannelsCheck::check(std::map<std::string, std::shared_ptr<MonitorObject
     (void)name;
 
     if (obj->getName() == "EventTree") {
-      TTree* tree = dynamic_cast<TTree*>(obj->getObject());
+      auto* tree = const_cast<TTree*>(dynamic_cast<const TTree*>(obj->getObject()));
       if (tree->GetEntries() == 0) {
         return Quality::Bad;
       }

@@ -64,11 +64,26 @@ class ObjectsManager
   void startPublishing(TObject* obj);
 
   /**
+ * Start publishing the object obj, i.e. it will be pushed forward in the workflow at regular intervals.
+ * The ownership remains to the caller.
+ * @param obj The object to publish.
+ * @throws DuplicateObjectError
+ */
+  void startPublishing(const TObject* obj);
+
+  /**
    * Stop publishing this object
    * @param obj
    * @throw ObjectNotFoundError if object is not found.
    */
   void stopPublishing(TObject* obj);
+
+  /**
+ * Stop publishing this object
+ * @param obj
+ * @throw ObjectNotFoundError if object is not found.
+ */
+  void stopPublishing(const TObject* obj);
 
   /**
    * Stop publishing this object

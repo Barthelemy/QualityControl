@@ -35,12 +35,12 @@ MonitorObject::~MonitorObject()
   }
 }
 
-MonitorObject::MonitorObject(TObject* object, const std::string& taskName, const std::string& detectorName)
+MonitorObject::MonitorObject(const TObject* object, const std::string& taskName, const std::string& detectorName)
   : TObject(), mObject(object), mTaskName(taskName), mDetectorName(detectorName), mIsOwner(true)
 {
 }
 
-void MonitorObject::Draw(Option_t* option) { mObject->Draw(option); }
+void MonitorObject::Draw(Option_t* option) { const_cast<TObject*>(mObject)->Draw(option); /* we are forced to cast to non const */}
 
 TObject* MonitorObject::DrawClone(Option_t* option) const
 {

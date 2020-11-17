@@ -55,13 +55,13 @@ class TestCheck : public checker::CheckInterface
       return Quality::Null;
     }
 
-    TObjString* str = reinterpret_cast<TObjString*>(mo->getObject());
+    auto* str = const_cast<TObjString*>(reinterpret_cast<const TObjString*>(mo->getObject()));
     return mValidString == str->String() ? Quality::Good : Quality::Bad;
   }
 
   void beautify(std::shared_ptr<MonitorObject> mo, Quality = Quality::Null) override
   {
-    TObjString* str = reinterpret_cast<TObjString*>(mo->getObject());
+    auto* str = const_cast<TObjString*>(reinterpret_cast<const TObjString*>(mo->getObject()));
     str->String().Append(" is beautiful now");
   }
 
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(test_invoke_all_methods)
   BOOST_CHECK_EQUAL(testCheck.check(&moMap), Quality::Good);
 
   testCheck.beautify(mo);
-  BOOST_CHECK_EQUAL(reinterpret_cast<TObjString*>(mo->getObject())->String(), "A string is beautiful now");
+  BOOST_CHECK_EQUAL(const_cast<TObjString*>(reinterpret_cast<const TObjString*>(mo->getObject()))->String(), "A string is beautiful now");
 
   BOOST_CHECK_EQUAL(testCheck.getAcceptedType(), "TObjString");
 }

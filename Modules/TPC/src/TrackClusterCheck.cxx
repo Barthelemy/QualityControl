@@ -38,7 +38,7 @@ Quality TrackClusterCheck::check(std::map<std::string, std::shared_ptr<MonitorOb
 
   // Check whether the cluster number for a track is smaller than 40 or 20 in Track task.
   if (mo->getName() == "hNClustersBeforeCuts") {
-    auto* h = dynamic_cast<TH1F*>(mo->getObject());
+    auto* h = dynamic_cast<const TH1F*>(mo->getObject());
     result = Quality::Good;
     for (int i = 0; i < h->GetNbinsX(); i++) {
       if (h->GetBinContent(i) > 0 && h->GetBinCenter(i) < 20) {
@@ -56,7 +56,7 @@ std::string TrackClusterCheck::getAcceptedType() { return "TH1"; }
 
 void TrackClusterCheck::beautify(std::shared_ptr<MonitorObject> mo, Quality checkResult)
 {
-  auto* h = dynamic_cast<TH1F*>(mo->getObject());
+  auto* h = const_cast<TH1F*>(dynamic_cast<const TH1F*>(mo->getObject()));
 
   TPaveText* msg = new TPaveText(0.5, 0.5, 0.9, 0.75, "NDC");
   h->GetListOfFunctions()->Add(msg);

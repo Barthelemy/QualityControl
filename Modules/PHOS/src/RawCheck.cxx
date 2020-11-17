@@ -38,7 +38,7 @@ Quality RawCheck::check(std::map<std::string, std::shared_ptr<MonitorObject>>* m
   Quality result = Quality::Good;
 
   if (mo->getName() == "ErrorTypePerSM") {
-    auto* h = dynamic_cast<TH2*>(mo->getObject());
+    const auto* h = dynamic_cast<const TH2*>(mo->getObject());
     if (h->GetEntries() != 0) {
       result = Quality::Bad;
     } // checker for the error type per SM
@@ -53,7 +53,7 @@ std::string RawCheck::getAcceptedType() { return "TH1"; }
 void RawCheck::beautify(std::shared_ptr<MonitorObject> mo, Quality checkResult)
 {
   if (mo->getName().find("Error") != std::string::npos) {
-    auto* h = dynamic_cast<TH1*>(mo->getObject());
+    auto* h = const_cast<TH1*>(dynamic_cast<const TH1*>(mo->getObject()));
     TPaveText* msg = new TPaveText(0.5, 0.5, 0.9, 0.75, "NDC");
     h->GetListOfFunctions()->Add(msg);
     msg->SetName(Form("%s_msg", mo->GetName()));

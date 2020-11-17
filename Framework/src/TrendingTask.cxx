@@ -77,9 +77,9 @@ void TrendingTask::trendValues(uint64_t timestamp, repository::DatabaseInterface
     // todo: make it agnostic to MOs, QOs or other objects. Let the reductor cast to whatever it needs.
     if (dataSource.type == "repository") {
       auto mo = qcdb.retrieveMO(dataSource.path, dataSource.name, timestamp);
-      TObject* obj = mo ? mo->getObject() : nullptr;
+      const TObject* obj = mo ? mo->getObject() : nullptr;
       if (obj) {
-        mReductors[dataSource.name]->update(obj);
+        mReductors[dataSource.name]->update(const_cast<TObject*>(obj));
       }
     } else if (dataSource.type == "repository-quality") {
       auto qo = qcdb.retrieveQO(dataSource.path + "/" + dataSource.name, timestamp);

@@ -38,7 +38,7 @@ Quality PIDClusterCheck::check(std::map<std::string, std::shared_ptr<MonitorObje
 
   // Check if the number of clusters is smaller than 159.
   if (mo->getName() == "hNClusters") {
-    auto* h = dynamic_cast<TH1F*>(mo->getObject());
+    auto* h = dynamic_cast<const TH1F*>(mo->getObject());
     result = Quality::Good;
     for (int i = 0; i < h->GetNbinsX(); i++) {
       if (h->GetBinContent(i) > 0 && h->GetBinCenter(i) > 159) {
@@ -54,7 +54,7 @@ std::string PIDClusterCheck::getAcceptedType() { return "TH1"; }
 
 void PIDClusterCheck::beautify(std::shared_ptr<MonitorObject> mo, Quality checkResult)
 {
-  auto* h = dynamic_cast<TH1F*>(mo->getObject());
+  auto* h = const_cast<TH1F*>(dynamic_cast<const TH1F*>(mo->getObject()));
 
   TPaveText* msg = new TPaveText(0.5, 0.5, 0.9, 0.75, "NDC");
   h->GetListOfFunctions()->Add(msg);

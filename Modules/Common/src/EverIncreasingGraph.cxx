@@ -35,7 +35,7 @@ Quality EverIncreasingGraph::check(std::map<std::string, std::shared_ptr<Monitor
 {
   auto mo = moMap->begin()->second;
   Quality result = Quality::Good;
-  auto* g = dynamic_cast<TGraph*>(mo->getObject());
+  const auto* g = dynamic_cast<const TGraph*>(mo->getObject());
   if (g == nullptr) {
     return Quality::Null;
   }
@@ -66,7 +66,7 @@ void EverIncreasingGraph::beautify(std::shared_ptr<MonitorObject> mo, Quality ch
     return;
   }
 
-  auto* g = dynamic_cast<TGraph*>(mo->getObject());
+  auto* g = const_cast<TGraph*>(dynamic_cast<const TGraph*>(mo->getObject()));
   if (!g) {
     ILOG(Error, Support) << "MO should be a graph" << ENDM;
     return;

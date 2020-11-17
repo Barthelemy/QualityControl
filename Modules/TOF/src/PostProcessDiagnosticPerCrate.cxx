@@ -63,7 +63,7 @@ void PostProcessDiagnosticPerCrate::update(Trigger, framework::ServiceRegistry&)
     }
     ILOG(Info) << "Processing slot " << slot << " from " << moName << ENDM;
     auto mo = mDatabase->retrieveMO(mCCDBPath, moName);
-    TH2F* moH = static_cast<TH2F*>(mo ? mo->getObject() : nullptr);
+    auto* moH = const_cast<TH2F*>(dynamic_cast<const TH2F*>(mo ? mo->getObject() : nullptr));
     if (moH) {
       for (int crate = 0; crate < moH->GetNbinsY(); crate++) { // Loop over crates
         ILOG(Info) << "Processing crate " << crate << ENDM;

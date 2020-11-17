@@ -51,6 +51,11 @@ ObjectsManager::~ObjectsManager() = default;
 
 void ObjectsManager::startPublishing(TObject* object)
 {
+  return startPublishing(const_cast<const TObject*>(object));
+}
+
+void ObjectsManager::startPublishing(const TObject* object)
+{
   if (mMonitorObjects->FindObject(object->GetName()) != 0) {
     ILOG(Warning, Support) << "Object is already being published (" << object->GetName() << ")" << ENDM;
     BOOST_THROW_EXCEPTION(DuplicateObjectError() << errinfo_object_name(object->GetName()));
@@ -87,6 +92,11 @@ void ObjectsManager::removeAllFromServiceDiscovery()
 }
 
 void ObjectsManager::stopPublishing(TObject* object)
+{
+  stopPublishing(object->GetName());
+}
+
+void ObjectsManager::stopPublishing(const TObject* object)
 {
   stopPublishing(object->GetName());
 }

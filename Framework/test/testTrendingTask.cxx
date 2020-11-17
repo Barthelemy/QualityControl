@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(test_task)
     repository->storeMO(std::make_shared<MonitorObject>(dummyTree, taskName, "TST"));
     auto treeMO = repository->retrieveMO("qc/TST/MO/" + taskName, taskName);
     BOOST_REQUIRE(treeMO != nullptr);
-    TTree* treeFromRepo = dynamic_cast<TTree*>(treeMO->getObject());
+    const TTree* treeFromRepo = dynamic_cast<const TTree*>(treeMO->getObject());
     BOOST_REQUIRE(treeFromRepo != nullptr);
     BOOST_REQUIRE_EQUAL(treeFromRepo->GetEntries(), 0);
   }
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(test_task)
   // The test itself
   {
     auto treeMO = repository->retrieveMO("qc/TST/MO/" + taskName, taskName); //the tree is stored under the same name as task
-    TTree* tree = dynamic_cast<TTree*>(treeMO->getObject());
+    TTree* tree = const_cast<TTree*>(dynamic_cast<const TTree*>(treeMO->getObject()));
 
     BOOST_REQUIRE(tree != nullptr);
 

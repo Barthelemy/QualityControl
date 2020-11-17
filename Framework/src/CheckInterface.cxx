@@ -23,7 +23,7 @@ bool CheckInterface::isObjectCheckable(const std::shared_ptr<MonitorObject> mo)
 
 bool CheckInterface::isObjectCheckable(const MonitorObject* mo)
 {
-  TObject* encapsulated = mo->getObject();
+  const TObject* encapsulated = mo->getObject();
 
   return encapsulated->IsA()->InheritsFrom(getAcceptedType().c_str());
 }

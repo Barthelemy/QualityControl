@@ -38,7 +38,8 @@ void MonitorObjectCollection::merge(mergers::MergeInterface* const other)
       auto targetMO = dynamic_cast<MonitorObject*>(targetObject);
       if (otherMO && targetMO) {
         // That might be another collection or a concrete object to be merged, we walk on the collection recursively.
-        algorithm::merge(targetMO->getObject(), otherMO->getObject());
+        // TODO merge should take constant
+        algorithm::merge(const_cast<TObject*>(targetMO->getObject()), const_cast<TObject*>(otherMO->getObject()));
       } else {
         throw std::runtime_error("The target object or the other object could not be casted to MonitorObject.");
       }

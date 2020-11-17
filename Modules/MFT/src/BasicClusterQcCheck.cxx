@@ -37,7 +37,7 @@ Quality BasicClusterQcCheck::check(std::map<std::string, std::shared_ptr<Monitor
 
     (void)moName;
     if (mo->getName() == "mMFT_nPix") {
-      auto* h = dynamic_cast<TH1F*>(mo->getObject());
+      const auto* h = dynamic_cast<const TH1F*>(mo->getObject());
       result = Quality::Good;
 
       // test it
@@ -54,7 +54,7 @@ std::string BasicClusterQcCheck::getAcceptedType() { return "TH1"; }
 void BasicClusterQcCheck::beautify(std::shared_ptr<MonitorObject> mo, Quality checkResult)
 {
   if (mo->getName() == "mMFT_nPix") {
-    auto* h = dynamic_cast<TH1F*>(mo->getObject());
+    auto* h = const_cast<TH1F*>(dynamic_cast<const TH1F*>(mo->getObject()));
 
     if (checkResult == Quality::Good) {
       h->SetLineColor(kGreen);
