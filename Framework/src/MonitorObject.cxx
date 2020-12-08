@@ -26,42 +26,33 @@ ClassImp(o2::quality_control::core::MonitorObject)
 namespace o2::quality_control::core
 {
 
-MonitorObject::MonitorObject() : TObject(), mObject(nullptr), mTaskName(""), mDetectorName(""), mIsOwner(true) {}
+MonitorObject::MonitorObject() : TObject(), mObject(nullptr), mObjectClass(nullptr), mObjectName(""), mTaskName(""), mDetectorName(""), mIsOwner(true) {}
 
 MonitorObject::~MonitorObject()
 {
   if (mIsOwner && mObject != nullptr) {
-    delete mObject;
+    mObjectClass->Destructor(mObject);
   }
 }
 
-MonitorObject::MonitorObject(TObject* object, const std::string& taskName, const std::string& detectorName)
-  : TObject(), mObject(object), mTaskName(taskName), mDetectorName(detectorName), mIsOwner(true)
+MonitorObject::MonitorObject(void* object, TClass* objectClass, std::string objectName, const std::string& taskName, const std::string& detectorName)
+  : TObject(), mObject(object), mObjectClass(objectClass), mObjectName(objectName), mTaskName(taskName), mDetectorName(detectorName), mIsOwner(true)
 {
+
 }
 
-void MonitorObject::Draw(Option_t* option) { mObject->Draw(option); }
-
-TObject* MonitorObject::DrawClone(Option_t* option) const
-{
-  auto* clone = new MonitorObject();
-  clone->setTaskName(this->getTaskName());
-  clone->setObject(mObject->DrawClone(option));
-  return clone;
-}
-
-const std::string MonitorObject::getName() const
-{
-  return string(GetName());
-}
-
-const char* MonitorObject::GetName() const
+std::string MonitorObject::getName() const
 {
   if (mObject == nullptr) {
     cerr << "MonitorObject::getName() : No object in this MonitorObject, returning empty string";
     return "";
   }
-  return mObject->GetName();
+  return mObjectName;
+}
+
+const char* MonitorObject::GetName() const
+{
+  return strdup(getName().c_str());
 }
 
 void MonitorObject::addMetadata(std::string key, std::string value)

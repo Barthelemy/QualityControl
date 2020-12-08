@@ -19,9 +19,12 @@
 // std
 #include <string>
 #include <map>
+#include <typeindex>
+#include <boost/any.hpp>
 // ROOT
 #include <Rtypes.h>
 #include <TObject.h>
+#include <TClass.h>
 // O2
 #include <Common/Exceptions.h>
 
@@ -43,7 +46,7 @@ class MonitorObject : public TObject
  public:
   /// Default constructor
   MonitorObject();
-  MonitorObject(TObject* object, const std::string& taskName, const std::string& detectorName = "DET");
+  MonitorObject(void* object, TClass* objectClass, std::string objectName, const std::string& taskName, const std::string& detectorName = "DET");
   /// Destructor
   ~MonitorObject() override;
 
@@ -58,7 +61,7 @@ class MonitorObject : public TObject
 
   /// \brief Return the name of the encapsulated object (if any).
   /// @return The name of the encapsulated object or "" if there is no object.
-  const std::string getName() const;
+  std::string getName() const;
 
   /// \brief Overwrite the TObject's method just to avoid confusion.
   /// @return The name of the encapsulated object or "" if there is no object.
@@ -68,7 +71,7 @@ class MonitorObject : public TObject
   /// @return The name as "{getTaskName()}/{getName())}.
   const std::string getFullName() const { return getTaskName() + "/" + getName(); }
 
-  TObject* getObject() const { return mObject; }
+  void* getObject() const { return mObject; }
 
   void setObject(TObject* object) { mObject = object; }
 
@@ -98,9 +101,6 @@ class MonitorObject : public TObject
   /// \brief Update the value of metadata or add it if it does not exist yet.
   void addOrUpdateMetadata(std::string key, std::string value);
 
-  void Draw(Option_t* option) override;
-  TObject* DrawClone(Option_t* option) const override;
-
   /// \brief Build the path to this object.
   /// Build the path to this object as it will appear in the GUI.
   /// \return A string containing the path.
@@ -110,7 +110,11 @@ class MonitorObject : public TObject
   void setDescription(const std::string& description);
 
  private:
-  TObject* mObject;
+//  boost::any* mObject;
+  void* mObject;
+//  std::type_index mObjectType;
+  TClass* mObjectClass;
+  std::string mObjectName;
   std::string mTaskName;
   std::string mDetectorName;
   std::map<std::string, std::string> mUserMetadata;
@@ -121,7 +125,7 @@ class MonitorObject : public TObject
   // TODO : maybe we should always be the owner ?
   bool mIsOwner;
 
-  ClassDefOverride(MonitorObject, 7);
+  ClassDefOverride(MonitorObject, 8);
 };
 
 } // namespace o2::quality_control::core

@@ -20,6 +20,8 @@
 #include "QualityControl/MonitorObject.h"
 #include "QualityControl/MonitorObjectCollection.h"
 #include "QualityControl/TaskConfig.h"
+// ROOT
+#include <TClass.h>
 // stl
 #include <string>
 #include <memory>
@@ -57,11 +59,33 @@ class ObjectsManager
 
   /**
    * Start publishing the object obj, i.e. it will be pushed forward in the workflow at regular intervals.
-   * The ownership remains to the caller.
+   * The ownership remains with the caller.
    * @param obj The object to publish.
    * @throws DuplicateObjectError
    */
   void startPublishing(TObject* obj);
+
+  /**
+   * Start publishing the object @param obj under the @param name, i.e. it will be pushed forward in the workflow at regular intervals.
+   * The ownership remains with the caller.
+   * @tparam T Type of the object to publish. It must have a ROOT dictionary.
+   * @param obj The object to publish.
+   * @param name The unique name of the object to publish.
+   * @throws DuplicateObjectError
+   */
+  template <typename T>
+  void startPublishingAny(T* obj, const std::string& name)
+  {
+    startPublishingAnyImpl(reinterpret_cast<const void*>(obj), typeid(T), name);
+  }
+
+  /**
+   * Actual implementation of the storage of an arbitrary object with dictionary.
+   * @param obj
+   * @param tinfo
+   * @param name
+   */
+  void startPublishingAnyImpl(const void* obj, std::type_info const& info, const std::string& name);
 
   /**
    * Stop publishing this object

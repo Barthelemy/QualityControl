@@ -61,6 +61,29 @@ void ObjectsManager::startPublishing(TObject* object)
   mUpdateServiceDiscovery = true;
 }
 
+
+void ObjectsManager::startPublishingAnyImpl(const void* obj, std::type_info const& info, const string& name)
+{
+  // Check that dictionary exists
+  auto tcl = TClass::GetClass(info);
+  if (!tcl) {
+    ILOG(Warning, Support) << "Could not retrieve ROOT dictionary for type " << info.name() << ", object "
+                           << name << " won't be published" << ENDM;
+    return;
+  }
+
+  // Check that an object is not already being published under this name
+  if (mMonitorObjects->FindObject(name.c_str()) != 0) {
+    ILOG(Warning, Support) << "Object is already being published (" << name << ")" << ENDM;
+    BOOST_THROW_EXCEPTION(DuplicateObjectError() << errinfo_object_name(name));
+  }
+
+  auto* newObject = new MonitorObject(object, mTaskName, mDetectorName);
+  newObject->setIsOwner(false);
+  mMonitorObjects->Add(newObject);
+  mUpdateServiceDiscovery = true;
+}
+
 void ObjectsManager::updateServiceDiscovery()
 {
   if (!mUpdateServiceDiscovery || mServiceDiscovery == nullptr) {
