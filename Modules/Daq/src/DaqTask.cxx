@@ -20,6 +20,7 @@
 #include "QualityControl/stringUtils.h"
 // ROOT
 #include <TH1.h>
+#include <TH2.h>
 // O2
 #include <DPLUtils/DPLRawParser.h>
 #include <DetectorsRaw/RDHUtils.h>
@@ -44,11 +45,12 @@ DaqTask::~DaqTask()
   delete mInputRecordPayloadSize;
   delete mNumberInputs;
   delete mInputSize;
+//  delete mInputSizeOverTime;
   delete mNumberRDHs;
 }
 
 // TODO remove this function once the equivalent is available in O2 DAQID
-bool isDetIdValid(DAQID::ID id)
+bool isDetIdValidDet(DAQID::ID id)
 {
   return (id < DAQID::MAXDAQ + 1) && (DAQID::DAQtoO2(id) != gDataOriginInvalid);
 }
@@ -69,6 +71,13 @@ void DaqTask::initialize(o2::framework::InitContext& /*ctx*/)
   mNumberRDHs = new TH1F("numberRDHs", "Number of RDHs per InputRecord", 100, 1, 100);
   mNumberRDHs->SetCanExtend(TH1::kXaxis);
   getObjectsManager()->startPublishing(mNumberRDHs);
+//  mInputSizeOverTime = new TH2F("payloadSizeInputs", "Payload size of the inputs;bytes", 128, 0, 2047);
+//  mInputSizeOverTime->SetCanExtend(TH1::kXaxis);
+//  getObjectsManager()->startPublishing(mInputSize);
+  mRdhHitsPerLink = new TH1F("numberHitsPerLink", "Number of hits per link", 100, 1, 100); // min: ? ; max: ?
+  getObjectsManager()->startPublishing(mRdhHitsPerLink);
+  mRdhSizesPerLink = new TH2F("numberSizePerLink", "RDH memory size per link", 100, 1, 100, 100, 1, 100); // todo min: ? ; max: ?
+  getObjectsManager()->startPublishing(mRdhSizesPerLink);
 
   // initialize a map for the subsystems (id, name)
   for (int i = DAQID::MINDAQ; i < DAQID::MAXDAQ + 1; i++) {
@@ -90,6 +99,14 @@ void DaqTask::initialize(o2::framework::InitContext& /*ctx*/)
     title = "RDH sizes for " + system.second + ";bytes";
     mSubSystemsRdhSizes[system.first] = new TH1F(name.c_str(), title.c_str(), 128, 0, 2047);
     mSubSystemsRdhSizes[system.first]->SetCanExtend(TH1::kXaxis);
+
+    name = system.second + "/RdhHitsPerLink";
+    title = "RDH sizes for " + system.second + ";bytes";
+    mSubSystemsRdhHitsPerLink[system.first] = new TH1F(name.c_str(), title.c_str(), 128, 0, 2047);
+
+    name = system.second + "/RdhSizesPerLink";
+    title = "RDH sizes for " + system.second + ";bytes";
+    mSubSystemsRdhSizesPerLink[system.first] = new TH2F(name.c_str(), title.c_str(), 100, 1, 100, 128, 0, 2047); // todo min ? max ?
   }
 }
 
@@ -269,7 +286,7 @@ void DaqTask::monitorRDHs(o2::framework::InputRecord& inputRecord)
     // RDH plots
     try {
       rdhSource = RDHUtils::getVersion(rdh) >= 6 ? RDHUtils::getSourceID(rdh) : DAQID::INVALID; // there is no sourceID before v6
-      if (!isDetIdValid(rdhSource)) {                                                           // if we found it , is it valid ?
+      if (!isIdValid(rdhSource)) {                                                           // if we found it , is it valid ?
         rdhSource = DAQID::INVALID;
       }
       totalSize += RDHUtils::getMemorySize(rdh);
@@ -279,6 +296,9 @@ void DaqTask::monitorRDHs(o2::framework::InputRecord& inputRecord)
       ILOG(Error, Devel) << "Catched an exception when accessing the rdh fields: \n"
                          << e.what() << ENDM;
     }
+    // getCRUID
+    // getEndPointID
+    // getLinkID
   }
 
   mSubSystemsTotalSizes.at(rdhSource)->Fill(totalSize);

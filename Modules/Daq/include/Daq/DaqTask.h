@@ -22,6 +22,7 @@
 #include <set>
 
 class TH1F;
+class TH2F;
 
 using namespace o2::quality_control::core;
 
@@ -68,14 +69,19 @@ class DaqTask final : public o2::quality_control::core::TaskInterface
   TH1F* mNumberInputs = nullptr;           // filled w/ the number of inputs in each InputRecord we encounter
   TH1F* mInputSize = nullptr;              // filled w/ the size of the inputs in each InputRecord we encounter
   TH1F* mNumberRDHs = nullptr;             // filled w/ the number of RDHs found in each InputRecord we encounter
+  TH2F* mInputSizeOverTime = nullptr;      // filled w/ the size of the inputs in each InputRecord, plotted over time
 
   // Per link information
+  TH1F* mRdhHitsPerLink;                   // filled w/ the number of times we saw an rdh for each link
+  TH2F* mRdhSizesPerLink;                  // filled w/ the size of the rdhs for each
 
   // Per detector information
   std::map<o2::header::DAQID::ID, TH1F*> mSubSystemsTotalSizes; // filled with the sum of RDH memory sizes per InputRecord
   std::map<o2::header::DAQID::ID, TH1F*> mSubSystemsRdhSizes;   // filled with the RDH memory sizes for each RDH
   // todo : for the next one we need to know the number of links per detector.
-  //  std::map<o2::header::DAQID::ID, TH1F*> mSubSystemsRdhHits; // hits per link split by detector
+  std::map<o2::header::DAQID::ID, TH1F*> mSubSystemsRdhHitsPerLink; // hits per link split by detector
+  std::map<o2::header::DAQID::ID, TH2F*> mSubSystemsRdhSizesPerLink; // filled with the RDH memory sizes for each link
+
   // todo we could add back the graph for the IDs using the TFID
 };
 
