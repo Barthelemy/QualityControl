@@ -4,12 +4,13 @@
 set -u ;# exit when using undeclared variable
 #set -x ;# debugging
 
+# The script must be called from with QualityControl/Modules/Benchmark/script/
+
 trap kill_benchmark INT
 
 function check_installed() {
-  # very stupid but easy way to check if a package is installed
-  $1 --version > /dev/null
-  if [ $? -ne 0 ]; then
+  if ! command -v $1 &> /dev/null
+  then
     echo "Please install the package "$1" before running the benchmark."
     exit 1;
   fi
@@ -164,15 +165,21 @@ function benchmark() {
             mapfile -t metrics_checks_executed < <(grep -a 'qc_checks_executed' $run_log | grep -o -e 'value=[0-9]\{1,\}' | sed -e 's/value=//' | tail -n +$warm_up_cycles)
             mapfile -t metrics_objects_received < <(grep -a 'qc_objects_received' $run_log | grep -o -e 'value=[0-9]\{1,\}' | sed -e 's/value=//' | tail -n +$warm_up_cycles)
             mapfile -t metrics_test_duration < <(grep -a 'qc_checks_executed' $run_log | grep -o -e '[0-9]\{1,\} hostname' | sed -e 's/ hostname//' | tail -n +$warm_up_cycles)
+            mapfile -t metrics_qo_stored < <(grep -a 'qc_qo_stored' $run_log | grep -o -e '[0-9]\{1,\} hostname' | sed -e 's/ hostname//' | tail -n +$warm_up_cycles)
+            mapfile -t metrics_mo_stored < <(grep -a 'qc_mo_stored' $run_log | grep -o -e '[0-9]\{1,\} hostname' | sed -e 's/ hostname//' | tail -n +$warm_up_cycles)
 
-            if [ ${#metrics_checks_executed[@]} -ge 2 ] && [ ${#metrics_test_duration[@]} -ge 2 ] && [ ${#metrics_objects_received[@]} -ge 2 ]; then
+            if [ ${#metrics_checks_executed[@]} -ge 2 ] && [ ${#metrics_test_duration[@]} -ge 2 ] && [ ${#metrics_objects_received[@]} -ge 2 ] && [ ${#metrics_qo_stored[@]} -ge 2 ] && [ ${#metrics_mo_stored[@]} -ge 2 ]; then
 
               (( total_checks_executed = metrics_checks_executed[-1] - metrics_checks_executed[0] ))
               (( total_objects_received = metrics_objects_received[-1] - metrics_objects_received[0] ))
               (( total_test_duration_ms = metrics_test_duration[-1] - metrics_test_duration[0] ))
+              (( total_qo_stored = metrics_qo_stored[-1] - metrics_qo_stored[0] ))
+              (( total_mo_stored = metrics_mo_stored[-1] - metrics_mo_stored[0] ))
 
               checks_per_second=`echo "scale=3; $total_checks_executed*1000/$total_test_duration_ms" | bc -l`
               objects_per_second=`echo "scale=3; $total_objects_received*1000/$total_test_duration_ms" | bc -l`
+              qo_stored_per_second=`echo "scale=3; $total_qo_stored*1000/$total_test_duration_ms" | bc -l`
+              mo_stored_per_second=`echo "scale=3; $total_mo_stored*1000/$total_test_duration_ms" | bc -l`
             else
               state='error'
             fi
@@ -180,6 +187,8 @@ function benchmark() {
 
           printf "%16s," "$objects_per_second" >> $results_filename
           printf "%16s" "$checks_per_second" >> $results_filename
+          printf "%16s" "$qo_stored_per_second" >> $results_filename
+          printf "%16s" "$mo_stored_per_second" >> $results_filename
           printf "\n" >> $results_filename
 
         done
