@@ -6,7 +6,7 @@ set -u ;# exit when using undeclared variable
 
 # The script must be called from with QualityControl/Modules/Benchmark/script/
 
-trap kill_benchmark INT
+trap kill_benchmark INT SIGINT
 
 function check_installed() {
   if ! command -v $1 &> /dev/null
@@ -243,9 +243,9 @@ while getopts 'hfm:t:' option; do
 done
 
 # global parameters
-REPETITIONS=5;
-TEST_DURATION=300;
-WARM_UP_CYCLES=5;
+REPETITIONS=1;
+TEST_DURATION=45;
+WARM_UP_CYCLES=0;
 
 # test-specific parameters
 NB_CHECKS=(1);
@@ -269,5 +269,20 @@ NB_HISTOGRAMS=(1 100);
 NB_BINS=(1 10 100 1000 10000 100000 1000000);
 CYCLE_SECONDS=1
 TEST_NAME='object-size'
+
+benchmark NB_CHECKS NB_HISTOGRAMS NB_BINS $CYCLE_SECONDS $REPETITIONS $TEST_DURATION $WARM_UP_CYCLES $TEST_NAME $FILL
+NB_CHECKS=(40);
+NB_HISTOGRAMS=(400);
+NB_BINS=(64000);
+CYCLE_SECONDS=1
+TEST_NAME='qcdb'
+
+benchmark NB_CHECKS NB_HISTOGRAMS NB_BINS $CYCLE_SECONDS $REPETITIONS $TEST_DURATION $WARM_UP_CYCLES $TEST_NAME $FILL
+
+NB_CHECKS=(4);
+NB_HISTOGRAMS=(4);
+NB_BINS=(64000);
+CYCLE_SECONDS=1
+TEST_NAME='basic'
 
 benchmark NB_CHECKS NB_HISTOGRAMS NB_BINS $CYCLE_SECONDS $REPETITIONS $TEST_DURATION $WARM_UP_CYCLES $TEST_NAME $FILL
