@@ -82,7 +82,7 @@ function benchmark() {
   local config_file_template='../etc/benchmarkCheckTemplate.json'
   local config_file_concrete='benchmarkCheck.json'
   local run_log='run_log'
-  local check_config='\"AlwaysGoodCheck__CHECK_NO__\":{\"active\":\"true\",\"className\":\"o2::quality_control_modules::benchmark::AlwaysGoodCheck\",\"moduleName\":\"QcBenchmark\",\"policy\":\"OnAny\",\"detectorName\":\"TST\",\"dataSource\":[{\"type\":\"Task\",\"name\":\"BenchmarkTask\"}]},__CHECKS__'
+  local check_config='\"AlwaysGoodCheck__CHECK_NO__\":{\"active\":\"true\",\"className\":\"o2::quality_control_modules::benchmark::AlwaysGoodCheck\",\"moduleName\":\"QcBenchmark\",\"policy\":\"OnEachSeparately\",\"detectorName\":\"TST\",\"dataSource\":[{\"type\":\"Task\",\"name\":\"BenchmarkTask\"}]},__CHECKS__'
 
   printf "QC CHECK RUNNER BENCHMARK RESULTS\n" > $results_filename
   printf "Date:                   %s\n" "$test_date" >> $results_filename
@@ -91,7 +91,7 @@ function benchmark() {
   printf "Repetitions:            %s\n" "$repetitions" >> $results_filename
   printf "Test duration [s]:      %s\n" "$test_duration" >> $results_filename
   printf "Warm up cycles:         %s\n" "$warm_up_cycles" >> $results_filename
-  echo "nb_checks   , nb_histograms,      nb_bins, objs_per_second, checks_per_second" >> $results_filename
+  echo "nb_checks   , nb_histograms,      nb_bins, objs_per_second, checks_per_second, qo_stored_per_second, mo_stored_per_second" >> $results_filename
   local qc_common_args="--run -b --shm-segment-size 50000000000 --infologger-severity info --config json:/"`pwd`'/'$config_file_concrete
   local producer_common_args="-b"
   if [[ $fill == "no" ]]; then
@@ -165,8 +165,10 @@ function benchmark() {
             mapfile -t metrics_checks_executed < <(grep -a 'qc_checks_executed' $run_log | grep -o -e 'value=[0-9]\{1,\}' | sed -e 's/value=//' | tail -n +$warm_up_cycles)
             mapfile -t metrics_objects_received < <(grep -a 'qc_objects_received' $run_log | grep -o -e 'value=[0-9]\{1,\}' | sed -e 's/value=//' | tail -n +$warm_up_cycles)
             mapfile -t metrics_test_duration < <(grep -a 'qc_checks_executed' $run_log | grep -o -e '[0-9]\{1,\} hostname' | sed -e 's/ hostname//' | tail -n +$warm_up_cycles)
-            mapfile -t metrics_qo_stored < <(grep -a 'qc_qo_stored' $run_log | grep -o -e '[0-9]\{1,\} hostname' | sed -e 's/ hostname//' | tail -n +$warm_up_cycles)
-            mapfile -t metrics_mo_stored < <(grep -a 'qc_mo_stored' $run_log | grep -o -e '[0-9]\{1,\} hostname' | sed -e 's/ hostname//' | tail -n +$warm_up_cycles)
+            mapfile -t metrics_qo_stored < <(grep -a 'qc_qo_stored' $run_log | grep -o -e 'value=[0-9]\{1,\}' | sed -e 's/value=//' | tail -n +$warm_up_cycles)
+            mapfile -t metrics_mo_stored < <(grep -a 'qc_mo_stored' $run_log | grep -o -e 'value=[0-9]\{1,\}' | sed -e 's/value=//' | tail -n +$warm_up_cycles)
+
+	    echo "mo_stored: $metrics_mo_stored[0]"
 
             if [ ${#metrics_checks_executed[@]} -ge 2 ] && [ ${#metrics_test_duration[@]} -ge 2 ] && [ ${#metrics_objects_received[@]} -ge 2 ] && [ ${#metrics_qo_stored[@]} -ge 2 ] && [ ${#metrics_mo_stored[@]} -ge 2 ]; then
 
@@ -176,10 +178,14 @@ function benchmark() {
               (( total_qo_stored = metrics_qo_stored[-1] - metrics_qo_stored[0] ))
               (( total_mo_stored = metrics_mo_stored[-1] - metrics_mo_stored[0] ))
 
+	      echo "total_mo_stored: $total_mo_stored"
+
               checks_per_second=`echo "scale=3; $total_checks_executed*1000/$total_test_duration_ms" | bc -l`
               objects_per_second=`echo "scale=3; $total_objects_received*1000/$total_test_duration_ms" | bc -l`
               qo_stored_per_second=`echo "scale=3; $total_qo_stored*1000/$total_test_duration_ms" | bc -l`
               mo_stored_per_second=`echo "scale=3; $total_mo_stored*1000/$total_test_duration_ms" | bc -l`
+
+	      echo "mo_stored_per_sec: $mo_stored_per_second"
             else
               state='error'
             fi
@@ -197,8 +203,8 @@ function benchmark() {
   done
 
   # cleanups
-  rm -f $config_file_concrete
-  rm -f $run_log
+#  rm -f $config_file_concrete
+#  rm -f $run_log
 }
 
 function print_usage() {
@@ -244,8 +250,8 @@ done
 
 # global parameters
 REPETITIONS=1;
-TEST_DURATION=45;
-WARM_UP_CYCLES=0;
+TEST_DURATION=300;
+WARM_UP_CYCLES=2;
 
 # test-specific parameters
 NB_CHECKS=(1);
@@ -280,7 +286,7 @@ TEST_NAME='qcdb'
 benchmark NB_CHECKS NB_HISTOGRAMS NB_BINS $CYCLE_SECONDS $REPETITIONS $TEST_DURATION $WARM_UP_CYCLES $TEST_NAME $FILL
 
 NB_CHECKS=(4);
-NB_HISTOGRAMS=(4);
+NB_HISTOGRAMS=(100);
 NB_BINS=(64000);
 CYCLE_SECONDS=1
 TEST_NAME='basic'
