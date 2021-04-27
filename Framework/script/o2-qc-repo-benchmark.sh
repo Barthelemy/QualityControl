@@ -8,8 +8,8 @@ set -u ;# exit when using undeclared variable
 # One must have ssh keys to connect to all hosts.
 
 ### Define matrix of tests
-NB_OF_TASKS=(10) ;#1 2 5 10 25 50 100);
-NB_OF_OBJECTS=(200);
+NB_OF_TASKS=(2) ;#1 2 5 10 25 50 100);
+NB_OF_OBJECTS=(500);
 SIZE_OBJECTS=(10);# 100 500 1000 2500 5000);# 10 100 1000);# in kB
 
 ### Misc variables
@@ -17,7 +17,7 @@ SIZE_OBJECTS=(10);# 100 500 1000 2500 5000);# 10 100 1000);# in kB
 LOG_FILE_PREFIX=/tmp/logRepositoryBenchmark_
 NUMBER_CYCLES=120 ;# ec per cycle -> # seconds
 PAUSE_BTW_RUNS=60 ;# in seconds, pause between tests
-DB_URL="ccdb-test.cern.ch:8080" ;#"aido2qc43:8080" ;#
+DB_URL="10.161.69.42:8083" ;# "ccdb-test.cern.ch:8080" ;#"aido2qc43:8080" ;#
 DB_USERNAME=""
 DB_PASSWORD=""
 DB_NAME=""
@@ -25,11 +25,11 @@ DB_BACKEND="CCDB"
 COMMAND_PREFIX="cd alice ; unset http_proxy ; unset https_proxy ; alienv setenv --no-refresh QualityControl/latest -c "
 MONITORING_URL="influxdb-udp://aido2mon.cern.ch:8087" ;#"influxdb-udp://aido2mon-gpn.cern.ch:8087"
 NODES=(
-"ccdb@aido2qc10"
-"ccdb@aido2qc40"
-"ccdb@aido2qc11"
-"ccdb@aido2qc12"
-"ccdb@aido2fe05"
+"bvonhall@alio2-cr1-qts01"
+#"ccdb@aido2qc40"
+#"ccdb@aido2qc11"
+#"ccdb@aido2qc12"
+#"ccdb@aido2fe05"
 #"ccdb@localhost"
 #"ccdb@barth-ccdb-606a6b90-1d83-48d5-8e46-ca72a63fc586"a
 #"ccdb@barth-ccdb-6f859d93-034c-4151-a4c8-571be0fe90f5"
@@ -142,7 +142,7 @@ for nb_tasks in ${NB_OF_TASKS[@]}; do
       done
 
       echo "Delete database content"
-      cleanDatabase $nb_tasks
+      cleanDatabase $nb_tasks  $nb_objects
 
       sleep ${PAUSE_BTW_RUNS} # leave time to finish
 

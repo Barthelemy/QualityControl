@@ -134,6 +134,9 @@ void RepositoryBenchmark::InitTask()
     mTimer->async_wait(boost::bind(&RepositoryBenchmark::checkTimedOut, this));
     th = new thread([&] { io.run(); });
   }
+
+  ILOG_INST.filterDiscardDebug(true);
+
 }
 
 void RepositoryBenchmark::checkTimedOut()
