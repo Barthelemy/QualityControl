@@ -45,7 +45,7 @@ repositoryBenchmark as many times needed on the machine(s).
 
 ## How to start using it
 
-1. Edit the bash script `repo_benchmarks.sh` by modifying the variables
+1. Edit the bash script `o2-qc-repo-benchmark.sh` by modifying the variables
 NB_OF_TASKS, NB_OF_OBJECTS and SIZE_OBJECTS at the top. They arrays
 that should contain all the possible values for these three variables.
 2. Find a set of machines and assign the variable NODES accordingly.

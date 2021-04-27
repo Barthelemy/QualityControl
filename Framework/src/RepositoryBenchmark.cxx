@@ -44,22 +44,23 @@ TH1* RepositoryBenchmark::createHisto(uint64_t sizeObjects, string name)
   // Prepare objects (and clean up existing ones)
   switch (sizeObjects) {
     case 1:
-      myHisto = new TH1F(name.c_str(), "h", 100, 0, 99); // 1kB
+      myHisto = new TH1F(name.c_str(), "h", 100, 0, 99); // 3.6 kB
       break;
     case 10:
-      myHisto = new TH1F(name.c_str(), "h", 2400, 0, 99); // 10kB
+      myHisto = new TH1F(name.c_str(), "h", 10000, -9, 9); // 10kB
+      myHisto->FillRandom("gaus",100000);
       break;
     case 100:
-      myHisto = new TH2F(name.c_str(), "h", 260, 0, 99, 100, 0, 99); // 100kB
+      myHisto = new TH2F(name.c_str(), "h", 6000, -9, 9, 1000, -9, 9); // 100kB
       break;
     case 500:
-      myHisto = new TH2F(name.c_str(), "h", 1250, 0, 99, 100, 0, 99); // 500kB
+      myHisto = new TH2F(name.c_str(), "h", 6000, -9, 9, 5000, -9, 9); // 500kB
       break;
     case 1000:
-      myHisto = new TH2F(name.c_str(), "h", 2500, 0, 99, 100, 0, 99); // 1MB
+      myHisto = new TH2F(name.c_str(), "h", 6000, -9, 9, 10000, -9, 9); // 1MB
       break;
     case 2500:
-      myHisto = new TH2F(name.c_str(), "h", 6250, 0, 99, 100, 0, 99); // 2.5MB
+      myHisto = new TH2F(name.c_str(), "h", 15000, -9, 9, 10000, -9, 9); // 2.5MB
       break;
     case 5000:
       myHisto = new TH2F(name.c_str(), "h", 12500, 0, 99, 100, 0, 99); // 5MB
@@ -195,6 +196,8 @@ void RepositoryBenchmark::emptyDatabase()
   for (uint64_t i = 0; i < mNumberObjects; i++) {
     mDatabase->truncate(mTaskName, mObjectName + to_string(i));
   }
+
+  ILOG_INST.filterDiscardDebug(true);
 }
 
 } // namespace o2::quality_control::core
