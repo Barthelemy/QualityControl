@@ -202,6 +202,8 @@ function benchmark() {
     done
   done
 
+  cat $config_file_concrete
+
   # cleanups
 #  rm -f $config_file_concrete
 #  rm -f $run_log
@@ -250,7 +252,7 @@ done
 
 # global parameters
 REPETITIONS=1;
-TEST_DURATION=300;
+TEST_DURATION=150;
 WARM_UP_CYCLES=2;
 
 # test-specific parameters
@@ -285,8 +287,8 @@ TEST_NAME='qcdb'
 
 benchmark NB_CHECKS NB_HISTOGRAMS NB_BINS $CYCLE_SECONDS $REPETITIONS $TEST_DURATION $WARM_UP_CYCLES $TEST_NAME $FILL
 
-NB_CHECKS=(4);
-NB_HISTOGRAMS=(100);
+NB_CHECKS=(1);
+NB_HISTOGRAMS=(1 10 50 100 200 400);
 NB_BINS=(64000);
 CYCLE_SECONDS=1
 TEST_NAME='basic'

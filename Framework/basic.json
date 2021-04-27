@@ -3,7 +3,7 @@
     "config": {
       "database": {
         "implementation": "CCDB",
-	  "host": "alio2-cr1-hv-qcdb1:8083",
+	  "host": "10.161.69.42:8083",
    
         "username": "not_applicable",
         "password": "not_applicable",
