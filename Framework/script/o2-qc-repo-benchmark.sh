@@ -9,7 +9,7 @@ set -u ;# exit when using undeclared variable
 
 ### Define matrix of tests
 NB_OF_TASKS=(2) ;#1 2 5 10 25 50 100);
-NB_OF_OBJECTS=(500);
+NB_OF_OBJECTS=(100);
 SIZE_OBJECTS=(10);# 100 500 1000 2500 5000);# 10 100 1000);# in kB
 
 ### Misc variables
@@ -23,7 +23,7 @@ DB_PASSWORD=""
 DB_NAME=""
 DB_BACKEND="CCDB"
 COMMAND_PREFIX="cd alice ; unset http_proxy ; unset https_proxy ; alienv setenv --no-refresh QualityControl/latest -c "
-MONITORING_URL="influxdb-udp://aido2mon.cern.ch:8087" ;#"influxdb-udp://aido2mon-gpn.cern.ch:8087"
+MONITORING_URL="infologger:///debug?qc" ;# "influxdb-udp://aido2mon.cern.ch:8087" ;#"influxdb-udp://aido2mon-gpn.cern.ch:8087"
 NODES=(
 "bvonhall@alio2-cr1-qts01"
 #"ccdb@aido2qc40"
@@ -93,7 +93,7 @@ function cleanDatabase {
   number_objects=$2
   for (( task=0; task<$nb_tasks; task++ )); do
     name=benchmarkTask_${task}
-    cmd="repositoryBenchmark --id test --mq-config ~/dev/alice/QualityControl/Framework/alfa.json --delete 1 --control static \
+    cmd="repositoryBenchmark --id test --mq-config ~/alice/QualityControl/Framework/alfa.json --delete 1 --control static \
          --task-name ${name} --number-objects ${number_objects}" ;# > /dev/null 2>&1"
     echo ${cmd}
     eval ${cmd}

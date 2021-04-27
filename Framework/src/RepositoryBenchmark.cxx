@@ -190,6 +190,7 @@ bool RepositoryBenchmark::ConditionalRun()
 
 void RepositoryBenchmark::emptyDatabase()
 {
+  string prefix = "qc/BMK/MO/";
   mDatabase->truncate(mTaskName, mObjectName);
   for (uint64_t i = 0; i < mNumberObjects; i++) {
     mDatabase->truncate(mTaskName, mObjectName + to_string(i));
