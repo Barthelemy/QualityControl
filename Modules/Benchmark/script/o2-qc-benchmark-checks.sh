@@ -202,7 +202,7 @@ function benchmark() {
     done
   done
 
-  cat $config_file_concrete
+  cat $results_filename
 
   # cleanups
 #  rm -f $config_file_concrete
