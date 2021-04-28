@@ -19,6 +19,7 @@
 #include <thread> // this_thread::sleep_for
 
 #include <TH2F.h>
+#include <TRandom.h>
 
 #include <fairmq/FairMQLogger.h>
 #include <options/FairMQProgOptions.h> // device->fConfig
@@ -37,30 +38,27 @@ using namespace o2::monitoring;
 namespace o2::quality_control::core
 {
 
-TH1* RepositoryBenchmark::createHisto(uint64_t sizeObjects, string name)
+TH1* RepositoryBenchmark::oldCreateHisto(uint64_t sizeObjects, string name)
 {
   TH1* myHisto;
-
-  // Prepare objects (and clean up existing ones)
   switch (sizeObjects) {
     case 1:
       myHisto = new TH1F(name.c_str(), "h", 100, 0, 99); // 3.6 kB
       break;
     case 10:
       myHisto = new TH1F(name.c_str(), "h", 10000, -9, 9); // 10kB
-      myHisto->FillRandom("gaus",100000);
       break;
     case 100:
-      myHisto = new TH2F(name.c_str(), "h", 6000, -9, 9, 1000, -9, 9); // 100kB
+      myHisto = new TH2F(name.c_str(), "h", 260, 0, 99, 100, 0, 99); // 100kB
       break;
     case 500:
-      myHisto = new TH2F(name.c_str(), "h", 6000, -9, 9, 5000, -9, 9); // 500kB
+      myHisto = new TH2F(name.c_str(), "h", 1250, 0, 99, 100, 0, 99); // 500kB
       break;
     case 1000:
-      myHisto = new TH2F(name.c_str(), "h", 6000, -9, 9, 10000, -9, 9); // 1MB
+      myHisto = new TH2F(name.c_str(), "h", 2500, 0, 99, 100, 0, 99); // 1MB
       break;
     case 2500:
-      myHisto = new TH2F(name.c_str(), "h", 15000, -9, 9, 10000, -9, 9); // 2.5MB
+      myHisto = new TH2F(name.c_str(), "h", 6250, 0, 99, 100, 0, 99); // 2.5MB
       break;
     case 5000:
       myHisto = new TH2F(name.c_str(), "h", 12500, 0, 99, 100, 0, 99); // 5MB
@@ -73,7 +71,65 @@ TH1* RepositoryBenchmark::createHisto(uint64_t sizeObjects, string name)
   return myHisto;
 }
 
-void RepositoryBenchmark::InitTask()
+TH1* RepositoryBenchmark::newCreateHisto(uint64_t sizeObjects, string name)
+{
+  TH1* myHisto;
+  int i, j;
+
+  switch (sizeObjects) {
+    case 1: // 4 kB
+      i=1;
+      j=1;
+      break;
+    case 10: // 10 kB
+      i=10;
+      j=90;
+      break;
+    case 100: // 100kB
+      i=10;
+      j=900;
+      break;
+    case 500: // 500 kB
+      i=50;
+      j=900;
+      break;
+    case 1000: // 1MB
+      i=100;
+      j=900;
+      break;
+    case 2500: // 2.5 MB
+      i=250;
+      j=900;
+    case 5000: // 5 MB
+      i=500;
+      j=900;
+      break;
+    default:
+      BOOST_THROW_EXCEPTION(
+        FatalException() << errinfo_details(
+          "size of histo must be 1, 10, 100, 500, 1000, 2500 or 5000 (was: " + to_string(mSizeObjects) + ")"));
+  }
+
+  myHisto = new TH2F(name.c_str(), "h", i, 0, i, j, 0, j);
+  for (int first = 0 ; first < i ; first++) {
+    for (int second = 0; second < j; second++) {
+      ((TH2F*)myHisto)->Fill(first, second, gRandom->Gaus(0., 1000.));
+    }
+  }
+
+  return myHisto;
+}
+
+TH1* RepositoryBenchmark::createHisto(uint64_t sizeObjects, string name, bool oldBehaviour)
+{
+  if (oldBehaviour) {
+    return oldCreateHisto(sizeObjects, name);
+  } else {
+    return newCreateHisto(sizeObjects, name);
+  }
+}
+
+  void RepositoryBenchmark::InitTask()
 {
   // parse arguments database
   string dbUrl = fConfig->GetValue<string>("database-url");
@@ -100,6 +156,8 @@ void RepositoryBenchmark::InitTask()
   mDeletionMode = static_cast<bool>(fConfig->GetValue<int>("delete"));
   mObjectName = fConfig->GetValue<string>("object-name");
   auto numberTasks = fConfig->GetValue<uint64_t>("number-tasks");
+  bool objectsSizeOldBehaviour = fConfig->GetProperty<bool>("size-objects-old-behaviour", true);
+  cout << "is old behaviour enabled ? " << endl;
 
   // monitoring
   mMonitoring = MonitoringFactory::Get(fConfig->GetValue<string>("monitoring-url"));
@@ -123,7 +181,7 @@ void RepositoryBenchmark::InitTask()
 
   // prepare objects
   for (uint64_t i = 0; i < mNumberObjects; i++) {
-    TH1* histo = createHisto(mSizeObjects, mObjectName + to_string(i));
+    TH1* histo = createHisto(mSizeObjects, mObjectName + to_string(i), objectsSizeOldBehaviour);
     shared_ptr<MonitorObject> mo = make_shared<MonitorObject>(histo, mTaskName, "BMK");
     mo->setIsOwner(true);
     mMyObjects.push_back(mo);

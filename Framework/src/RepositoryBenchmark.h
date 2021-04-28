@@ -38,9 +38,12 @@ class RepositoryBenchmark : public FairMQDevice
   virtual bool ConditionalRun();
   void emptyDatabase();
   void checkTimedOut();
-  TH1* createHisto(uint64_t sizeObjects, std::string name);
+  TH1* createHisto(uint64_t sizeObjects, std::string name, bool oldBehaviour);
 
  private:
+  TH1* newCreateHisto(uint64_t sizeObjects, std::string name);
+  TH1* oldCreateHisto(uint64_t sizeObjects, std::string name);
+
   // user params
   uint64_t mMaxIterations = 0;
   uint64_t mNumIterations = 0;
@@ -59,7 +62,6 @@ class RepositoryBenchmark : public FairMQDevice
   // internal state
   std::unique_ptr<o2::quality_control::repository::DatabaseInterface> mDatabase;
   std::vector<std::shared_ptr<MonitorObject>> mMyObjects;
-  //  TH1* mMyHisto;
 
   // variables for the timer
   boost::asio::deadline_timer* mTimer; /// the asynchronous timer to send monitoring data

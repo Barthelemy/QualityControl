@@ -28,6 +28,7 @@ o2-qc-repo-benchmark --max-iterations 30
                     --database-url ccdb-test.cern.ch:8080
                     --monitoring-threaded 0
                     --monitoring-threaded-interval 5
+                    --size-objects-old-behaviour false
 ```
 
 ### RepositoryBenchmark
@@ -54,4 +55,8 @@ DB_*.
 4. Make sure that the QC is installed on the client nodes and that there
 is the key there for a password-less ssh connection.
 
+## Note on size-objects-old-behaviour
 
+To test the storage of various size of objects we used histograms with varying number of bins. However, the way they are now serialized make them far smaller than before. 
+
+Setting the parameter `size-objects-old-behaviour` to `true` will use the old histograms (useful to compare with previous results) while setting it to `false` will use objects of the correct size. 
