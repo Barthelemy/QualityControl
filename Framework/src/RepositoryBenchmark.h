@@ -42,7 +42,7 @@ class RepositoryBenchmark : public FairMQDevice
 
  private:
   TH1* newCreateHisto(uint64_t sizeObjects, std::string name);
-  TH1* oldCreateHisto(uint64_t sizeObjects, std::string name);
+  TH1* oldCreateHisto(uint64_t sizeObjects, std::string name) const;
 
   // user params
   uint64_t mMaxIterations = 0;

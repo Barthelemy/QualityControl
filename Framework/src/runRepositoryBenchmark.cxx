@@ -45,7 +45,11 @@ void addCustomOptions(bpo::options_description& options)
     "monitoring-threaded-interval", bpo::value<int>()->default_value(1),
     "In case we have a thread for the monitoring, interval in sec. between sending monitoring data")(
     "monitoring-url", bpo::value<std::string>()->default_value("infologger://"),
-    "The URL to the monitoring system (default : \"infologger://\")");
+    "The URL to the monitoring system (default : \"infologger://\")")(
+    "size-objects-old-behaviour", bpo::value<bool>()->default_value(true),
+    "Whether we should use the old size of histograms (true, default) or the new, correct, one (false)")(
+    "add-small-objects", bpo::value<bool>()->default_value(true),
+    "Add the specified number of small objects to the rest of the objects (default 0)");
 }
 
 FairMQDevicePtr getDevice(const FairMQProgOptions& /*config*/)

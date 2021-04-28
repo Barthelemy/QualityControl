@@ -22,7 +22,6 @@
 #include <TRandom.h>
 
 #include <fairmq/FairMQLogger.h>
-#include <options/FairMQProgOptions.h> // device->fConfig
 
 #include <Common/Exceptions.h>
 
@@ -38,7 +37,7 @@ using namespace o2::monitoring;
 namespace o2::quality_control::core
 {
 
-TH1* RepositoryBenchmark::oldCreateHisto(uint64_t sizeObjects, string name)
+TH1* RepositoryBenchmark::oldCreateHisto(uint64_t sizeObjects, string name) const
 {
   TH1* myHisto;
   switch (sizeObjects) {
@@ -122,9 +121,12 @@ TH1* RepositoryBenchmark::newCreateHisto(uint64_t sizeObjects, string name)
 
 TH1* RepositoryBenchmark::createHisto(uint64_t sizeObjects, string name, bool oldBehaviour)
 {
+  cout << "oldbehaviour : " << oldBehaviour << endl;
   if (oldBehaviour) {
+    ILOG(Info, Support) << "Histograms with old sizes. " << ENDM;
     return oldCreateHisto(sizeObjects, name);
   } else {
+    ILOG(Info, Support) << "Histograms with new sizes. " << ENDM;
     return newCreateHisto(sizeObjects, name);
   }
 }
@@ -132,8 +134,8 @@ TH1* RepositoryBenchmark::createHisto(uint64_t sizeObjects, string name, bool ol
   void RepositoryBenchmark::InitTask()
 {
   // parse arguments database
-  string dbUrl = fConfig->GetValue<string>("database-url");
-  string dbBackend = fConfig->GetValue<string>("database-backend");
+  auto dbUrl = fConfig->GetValue<string>("database-url");
+  auto dbBackend = fConfig->GetValue<string>("database-backend");
   mTaskName = fConfig->GetValue<string>("task-name");
   try {
     mDatabase = o2::quality_control::repository::DatabaseFactory::create(dbBackend);
@@ -157,7 +159,7 @@ TH1* RepositoryBenchmark::createHisto(uint64_t sizeObjects, string name, bool ol
   mObjectName = fConfig->GetValue<string>("object-name");
   auto numberTasks = fConfig->GetValue<uint64_t>("number-tasks");
   bool objectsSizeOldBehaviour = fConfig->GetProperty<bool>("size-objects-old-behaviour", true);
-  cout << "is old behaviour enabled ? " << endl;
+  int nbSmallObjects = fConfig->GetProperty<int>("add-small-objects", 0);
 
   // monitoring
   mMonitoring = MonitoringFactory::Get(fConfig->GetValue<string>("monitoring-url"));
@@ -186,6 +188,12 @@ TH1* RepositoryBenchmark::createHisto(uint64_t sizeObjects, string name, bool ol
     mo->setIsOwner(true);
     mMyObjects.push_back(mo);
   }
+  for (int i = 0 ; i < nbSmallObjects ; i++) {
+    TH1* histo = createHisto(mSizeObjects, mObjectName + "_small_" + to_string(i), objectsSizeOldBehaviour);
+    shared_ptr<MonitorObject> mo = make_shared<MonitorObject>(histo, mTaskName, "BMK");
+    mo->setIsOwner(true);
+    mMyObjects.push_back(mo);
+  }
 
   // start a timer in a thread to send monitoring metrics, if needed
   if (mThreadedMonitoring) {
@@ -195,7 +203,6 @@ TH1* RepositoryBenchmark::createHisto(uint64_t sizeObjects, string name, bool ol
   }
 
   ILOG_INST.filterDiscardDebug(true);
-
 }
 
 void RepositoryBenchmark::checkTimedOut()
@@ -216,8 +223,8 @@ bool RepositoryBenchmark::ConditionalRun()
   high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
   // Store the object
-  for (unsigned int i = 0; i < mNumberObjects; i++) {
-    mDatabase->storeMO(mMyObjects[i]);
+  for (auto & mMyObject : mMyObjects) {
+    mDatabase->storeMO(mMyObject);
     mTotalNumberObjects++;
   }
   if (!mThreadedMonitoring) {
@@ -226,7 +233,7 @@ bool RepositoryBenchmark::ConditionalRun()
 
   high_resolution_clock::time_point t2 = high_resolution_clock::now();
   long duration = duration_cast<milliseconds>(t2 - t1).count();
-  mMonitoring->send({ duration / mNumberObjects, "ccdb_benchmark_store_duration_for_one_object_ms" });
+  mMonitoring->send({ duration / (uint64_t)mMyObjects.size(), "ccdb_benchmark_store_duration_for_one_object_ms" });
 
   // determine how long we should wait till next iteration in order to have 1 sec between storage
   auto duration2 = duration_cast<microseconds>(t2 - t1);
@@ -250,12 +257,7 @@ bool RepositoryBenchmark::ConditionalRun()
 void RepositoryBenchmark::emptyDatabase()
 {
   string prefix = "qc/BMK/MO/";
-  mDatabase->truncate(mTaskName, mObjectName);
-  for (uint64_t i = 0; i < mNumberObjects; i++) {
-    mDatabase->truncate(mTaskName, mObjectName + to_string(i));
-  }
-
-  ILOG_INST.filterDiscardDebug(true);
+  mDatabase->truncate(mTaskName, mObjectName + "*");
 }
 
 } // namespace o2::quality_control::core

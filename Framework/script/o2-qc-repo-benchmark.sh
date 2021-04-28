@@ -66,7 +66,7 @@ function startTask {
         --database-password ${DB_PASSWORD:-\"\"} \
         --database-url ${DB_URL:-\"\"} \
         --monitoring-threaded 1 \
-        --monitoring-threaded-interval 1 \
+        --monitoring-threaded-interval 5 \
         > ${log_file_name} 2>&1 "
   echo "ssh ${host} \"${cmd}\" &"
   ssh ${host} "${cmd}" &
