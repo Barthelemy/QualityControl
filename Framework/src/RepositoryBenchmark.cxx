@@ -156,7 +156,6 @@ TH1* RepositoryBenchmark::createHisto(uint64_t sizeObjects, string name, bool ol
   }
 
   // parse other arguments
-  try {
   mMaxIterations = fConfig->GetValue<uint64_t>("max-iterations");
   mNumberObjects = fConfig->GetValue<uint64_t>("number-objects");
   mSizeObjects = fConfig->GetValue<uint64_t>("size-objects");
@@ -205,12 +204,6 @@ TH1* RepositoryBenchmark::createHisto(uint64_t sizeObjects, string name, bool ol
     mTimer = new boost::asio::deadline_timer(io, boost::posix_time::seconds(mThreadedMonitoringInterval));
     mTimer->async_wait(boost::bind(&RepositoryBenchmark::checkTimedOut, this));
     th = new thread([&] { io.run(); });
-  }
-  } catch (...) {
-    // catch the configuration exception and print it to avoid losing it
-    ILOG(Fatal, Ops) << "Unexpected exception during configuration:\n"
-                     << boost::current_exception_diagnostic_information(true) << ENDM;
-    throw;
   }
 
   ILOG_INST.filterDiscardDebug(true);
