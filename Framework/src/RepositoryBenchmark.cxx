@@ -99,6 +99,7 @@ TH1* RepositoryBenchmark::newCreateHisto(uint64_t sizeObjects, string name)
     case 2500: // 2.5 MB
       i=250;
       j=900;
+      break;
     case 5000: // 5 MB
       i=500;
       j=900;
