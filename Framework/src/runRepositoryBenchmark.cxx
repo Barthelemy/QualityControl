@@ -48,7 +48,7 @@ void addCustomOptions(bpo::options_description& options)
     "The URL to the monitoring system (default : \"infologger://\")")(
     "size-objects-old-behaviour", bpo::value<bool>()->default_value(true),
     "Whether we should use the old size of histograms (true, default) or the new, correct, one (false)")(
-    "add-small-objects", bpo::value<bool>()->default_value(true),
+    "add-small-objects", bpo::value<int>()->default_value(0),
     "Add the specified number of small objects to the rest of the objects (default 0)");
 }
 

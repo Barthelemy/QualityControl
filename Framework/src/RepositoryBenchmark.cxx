@@ -17,6 +17,7 @@
 
 #include <chrono>
 #include <thread> // this_thread::sleep_for
+#include <Common/Exceptions.h>
 
 #include <TH2F.h>
 #include <TRandom.h>
@@ -36,6 +37,8 @@ using namespace o2::monitoring;
 
 namespace o2::quality_control::core
 {
+using namespace AliceO2::Common;
+
 
 TH1* RepositoryBenchmark::oldCreateHisto(uint64_t sizeObjects, string name) const
 {
@@ -153,6 +156,7 @@ TH1* RepositoryBenchmark::createHisto(uint64_t sizeObjects, string name, bool ol
   }
 
   // parse other arguments
+  try {
   mMaxIterations = fConfig->GetValue<uint64_t>("max-iterations");
   mNumberObjects = fConfig->GetValue<uint64_t>("number-objects");
   mSizeObjects = fConfig->GetValue<uint64_t>("size-objects");
@@ -189,7 +193,7 @@ TH1* RepositoryBenchmark::createHisto(uint64_t sizeObjects, string name, bool ol
     mo->setIsOwner(true);
     mMyObjects.push_back(mo);
   }
-  for (int i = 0 ; i < nbSmallObjects ; i++) {
+  for (uint64_t i = 0 ; i < nbSmallObjects ; i++) {
     TH1* histo = createHisto(mSizeObjects, mObjectName + "_small_" + to_string(i), objectsSizeOldBehaviour);
     shared_ptr<MonitorObject> mo = make_shared<MonitorObject>(histo, mTaskName, "BMK");
     mo->setIsOwner(true);
@@ -201,6 +205,12 @@ TH1* RepositoryBenchmark::createHisto(uint64_t sizeObjects, string name, bool ol
     mTimer = new boost::asio::deadline_timer(io, boost::posix_time::seconds(mThreadedMonitoringInterval));
     mTimer->async_wait(boost::bind(&RepositoryBenchmark::checkTimedOut, this));
     th = new thread([&] { io.run(); });
+  }
+  } catch (...) {
+    // catch the configuration exception and print it to avoid losing it
+    ILOG(Fatal, Ops) << "Unexpected exception during configuration:\n"
+                     << boost::current_exception_diagnostic_information(true) << ENDM;
+    throw;
   }
 
   ILOG_INST.filterDiscardDebug(true);
