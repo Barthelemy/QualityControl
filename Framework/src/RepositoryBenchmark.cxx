@@ -226,17 +226,17 @@ bool RepositoryBenchmark::ConditionalRun()
 
   high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
-  // Store the object
+  // Store the objects
   for (auto & mMyObject : mMyObjects) {
     mDatabase->storeMO(mMyObject);
-    mTotalNumberObjects++;
-  }
-  if (!mThreadedMonitoring) {
-    mMonitoring->send({ mTotalNumberObjects, "ccdb_benchmark_objects_sent" }, DerivedMetricMode::RATE);
   }
 
   high_resolution_clock::time_point t2 = high_resolution_clock::now();
+  mTotalNumberObjects += mMyObjects.size();
   long duration = duration_cast<milliseconds>(t2 - t1).count();
+  if (!mThreadedMonitoring) {
+    mMonitoring->send({ mTotalNumberObjects, "ccdb_benchmark_objects_sent" }, DerivedMetricMode::RATE);
+  }
   mMonitoring->send({ duration / (uint64_t)mMyObjects.size(), "ccdb_benchmark_store_duration_for_one_object_ms" });
 
   // determine how long we should wait till next iteration in order to have 1 sec between storage
