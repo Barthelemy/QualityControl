@@ -193,7 +193,7 @@ TH1* RepositoryBenchmark::createHisto(uint64_t sizeObjects, string name, bool ol
     mMyObjects.push_back(mo);
   }
   for (int i = 0 ; i < nbSmallObjects ; i++) {
-    TH1* histo = createHisto(mSizeObjects, mObjectName + "_small_" + to_string(i), objectsSizeOldBehaviour);
+    TH1* histo = createHisto(10, mObjectName + "_small_" + to_string(i), objectsSizeOldBehaviour);
     shared_ptr<MonitorObject> mo = make_shared<MonitorObject>(histo, mTaskName, "BMK");
     mo->setIsOwner(true);
     mMyObjects.push_back(mo);
