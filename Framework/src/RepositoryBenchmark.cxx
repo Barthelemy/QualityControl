@@ -260,7 +260,7 @@ bool RepositoryBenchmark::ConditionalRun()
 void RepositoryBenchmark::emptyDatabase()
 {
   string prefix = "qc/BMK/MO/";
-  mDatabase->truncate(mTaskName, mObjectName + "*");
+  mDatabase->truncate(prefix+mTaskName, mObjectName + "*");
 }
 
 } // namespace o2::quality_control::core
