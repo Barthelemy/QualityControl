@@ -125,12 +125,11 @@ TH1* RepositoryBenchmark::newCreateHisto(uint64_t sizeObjects, string name)
 
 TH1* RepositoryBenchmark::createHisto(uint64_t sizeObjects, string name, bool oldBehaviour)
 {
-  cout << "oldbehaviour : " << oldBehaviour << endl;
   if (oldBehaviour) {
-    ILOG(Info, Support) << "Histograms with old sizes. " << ENDM;
+    ILOG(Debug, Support) << "Histograms with old sizes. " << ENDM;
     return oldCreateHisto(sizeObjects, name);
   } else {
-    ILOG(Info, Support) << "Histograms with new sizes. " << ENDM;
+    ILOG(Debug, Support) << "Histograms with new sizes. " << ENDM;
     return newCreateHisto(sizeObjects, name);
   }
 }

@@ -8,16 +8,19 @@ set -u ;# exit when using undeclared variable
 # One must have ssh keys to connect to all hosts.
 
 ### Define matrix of tests
-NB_OF_TASKS=(1) ;#1 2 5 10 25 50 100);
-NB_OF_OBJECTS=(1);
-SIZE_OBJECTS=(1);# 10 100 1000 5000);# in kB
+NB_OF_TASKS=(5) ;#1 2 5 10 25 50 100);
+NB_OF_OBJECTS=(5);
+SIZE_OBJECTS=(1 10 100 500 1000 2500 5000);# in kB
 
 ### Misc variables
 # The log prefix will be followed by the benchmark description, e.g. 1 task 1 checker... or an id or both
 LOG_FILE_PREFIX=/tmp/logRepositoryBenchmark_
-NUMBER_CYCLES=30 ;# ec per cycle -> # seconds
-PAUSE_BTW_RUNS=1;# in seconds, pause between tests
-DB_URL="ccdb-test.cern.ch:8080" ;#10.161.69.42:8083" ;# "ccdb-test.cern.ch:8080" ;#"aido2qc43:8080" ;#
+NUMBER_CYCLES=180 ;# ec per cycle -> # seconds
+PAUSE_BTW_RUNS=10;# in seconds, pause between tests
+NUMBER_SMALL_OBJECTS=0
+SIZE_OBJECTS_OLD=true
+#DB_URL="10.161.69.42:8083" ;# "ccdb-test.cern.ch:8080" ;#"aido2qc43:8080" ;#
+DB_URL="ccdb-test.cern.ch:8080" 
 DB_USERNAME=""
 DB_PASSWORD=""
 DB_NAME=""
@@ -26,11 +29,11 @@ COMMAND_PREFIX="cd alice ; unset http_proxy ; unset https_proxy ; alienv setenv 
 MONITORING_URL="influxdb-udp://alio2-cr1-mvs01:8086" ;# "infologger:///debug?qc" ;# "influxdb-udp://aido2mon.cern.ch:8087" ;#"influxdb-udp://aido2mon-gpn.cern.ch:8087"
 NODES=(
 "bvonhall@alio2-cr1-qts01"
-#"bvonhall@alio2-cr1-qts02"
-#"bvonhall@alio2-cr1-qts03"
-#"bvonhall@alio2-cr1-qme01"
-#"bvonhall@alio2-cr1-qme02"
-#"bvonhall@alio2-cr1-qme03"
+"bvonhall@alio2-cr1-qts02"
+"bvonhall@alio2-cr1-qts03"
+"bvonhall@alio2-cr1-qme03"
+"bvonhall@alio2-cr1-qme02"
+"bvonhall@alio2-cr1-qme01"
 #"ccdb@aido2qc40"
 #"ccdb@aido2qc11"
 #"ccdb@aido2qc12"
@@ -72,6 +75,8 @@ function startTask {
         --database-url ${DB_URL:-\"\"} \
         --monitoring-threaded 1 \
         --monitoring-threaded-interval 5 \
+        --size-objects-old-behaviour ${SIZE_OBJECTS_OLD} \
+        --add-small-objects ${NUMBER_SMALL_OBJECTS}  \
         > ${log_file_name} 2>&1 "
   echo "ssh ${host} \"${cmd}\" &"
   ssh ${host} "${cmd}" &
