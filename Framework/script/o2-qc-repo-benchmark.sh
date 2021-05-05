@@ -1,50 +1,49 @@
 #!/usr/bin/env bash
-set -e ;# exit on error
-set -u ;# exit when using undeclared variable
+set -e # exit on error
+set -u # exit when using undeclared variable
 #set -x ;# debugging
 
 ### Notes
 # One must have ssh keys to connect to all hosts.
 
 ### Define matrix of tests
-NB_OF_TASKS=(1 2 5 10 25 50 100 150);
-NB_OF_OBJECTS=(10);
-SIZE_OBJECTS=(10);# in kB
+#NB_OF_TASKS=(1 2 5 10 25 50 100 150)
+#NB_OF_OBJECTS=(10)
+#SIZE_OBJECTS=(10) # in kB
 
 ### Misc variables
 # The log prefix will be followed by the benchmark description, e.g. 1 task 1 checker... or an id or both
 LOG_FILE_PREFIX=/tmp/logRepositoryBenchmark_
-NUMBER_CYCLES=180 ;# ec per cycle -> # seconds
-PAUSE_BTW_RUNS=10;# in seconds, pause between tests
+NUMBER_CYCLES=180 # ec per cycle -> # seconds
+PAUSE_BTW_RUNS=10 # in seconds, pause between tests
 NUMBER_SMALL_OBJECTS=0
 SIZE_OBJECTS_OLD=true
 #DB_URL="10.161.69.42:8083" ;# "ccdb-test.cern.ch:8080" ;#"aido2qc43:8080" ;#
-DB_URL="ccdb-test.cern.ch:8080" 
+#DB_URL="ccdb-test.cern.ch:8080"
 DB_USERNAME=""
 DB_PASSWORD=""
 DB_NAME=""
 DB_BACKEND="CCDB"
 COMMAND_PREFIX="cd alice ; unset http_proxy ; unset https_proxy ; alienv setenv --no-refresh QualityControl/latest -c "
-MONITORING_URL="influxdb-udp://alio2-cr1-mvs01:8086" ;# "infologger:///debug?qc" ;# "influxdb-udp://aido2mon.cern.ch:8087" ;#"influxdb-udp://aido2mon-gpn.cern.ch:8087"
+MONITORING_URL="influxdb-udp://alio2-cr1-mvs01:8086" # "infologger:///debug?qc" ;# "influxdb-udp://aido2mon.cern.ch:8087" ;#"influxdb-udp://aido2mon-gpn.cern.ch:8087"
 NODES=(
-"bvonhall@alio2-cr1-qts01"
-"bvonhall@alio2-cr1-qts02"
-"bvonhall@alio2-cr1-qts03"
-"bvonhall@alio2-cr1-qme03"
-"bvonhall@alio2-cr1-qme02"
-"bvonhall@alio2-cr1-qme01"
-#"ccdb@aido2qc40"
-#"ccdb@aido2qc11"
-#"ccdb@aido2qc12"
-#"ccdb@aido2fe05"
-#"ccdb@localhost"
-#"ccdb@barth-ccdb-606a6b90-1d83-48d5-8e46-ca72a63fc586"a
-#"ccdb@barth-ccdb-6f859d93-034c-4151-a4c8-571be0fe90f5"
-#"ccdb@barth-ccdb-c518e99c-c05c-4066-a5dd-63613755985f"
-#"ccdb@barth-ccdb-1394cef1-a627-4cf0-944f-40bf63f62ce1"
-#"ccdb@barth-ccdb-a53241f0-f9f5-4862-8bca-66c081f7bd14"
-) ;# space delimited
-
+  "bvonhall@alio2-cr1-qts01"
+  "bvonhall@alio2-cr1-qts02"
+  "bvonhall@alio2-cr1-qts03"
+  "bvonhall@alio2-cr1-qme03"
+  "bvonhall@alio2-cr1-qme02"
+  "bvonhall@alio2-cr1-qme01"
+  #"ccdb@aido2qc40"
+  #"ccdb@aido2qc11"
+  #"ccdb@aido2qc12"
+  #"ccdb@aido2fe05"
+  #"ccdb@localhost"
+  #"ccdb@barth-ccdb-606a6b90-1d83-48d5-8e46-ca72a63fc586"a
+  #"ccdb@barth-ccdb-6f859d93-034c-4151-a4c8-571be0fe90f5"
+  #"ccdb@barth-ccdb-c518e99c-c05c-4066-a5dd-63613755985f"
+  #"ccdb@barth-ccdb-1394cef1-a627-4cf0-944f-40bf63f62ce1"
+  #"ccdb@barth-ccdb-a53241f0-f9f5-4862-8bca-66c081f7bd14"
+) # space delimited
 
 ### Utility functions
 # Start a task in the background
@@ -54,7 +53,7 @@ NODES=(
 # \param 4 : size of the objects
 # \param 5 : number of objects
 # \param 6 : number of tasks
-function startTask {
+function startTask() {
   host=$1
   name=$2
   log_file_suffix=$3
@@ -63,7 +62,7 @@ function startTask {
   number_tasks=$6
   log_file_name=${LOG_FILE_PREFIX}${log_file_suffix}.log
   echo "Starting task ${name} on host ${host}, logs in ${log_file_name}"
-    cmd="${COMMAND_PREFIX} repositoryBenchmark --max-iterations ${NUMBER_CYCLES} \
+  cmd="${COMMAND_PREFIX} repositoryBenchmark --max-iterations ${NUMBER_CYCLES} \
         --id ${name} --mq-config ~/alice/QualityControl/Framework/alfa.json --number-tasks ${number_tasks}\
         --delete 0 --control static --size-objects ${size_objects} --number-objects ${number_objects} \
         --monitoring-url ${MONITORING_URL} --task-name ${name} \
@@ -86,21 +85,21 @@ function startTask {
 # \param 1 : name
 # \param 2 : host
 # \param 3 : extra flag for killall
-function killAll {
-    name=$1
-    host=$2
-    extra=${3:-""}
-    echo "Killing all processes called $name on $host"
-    ssh ${host} "killall ${extra} ${name}> /dev/null 2>&1 || true" ;# ignore errors
+function killAll() {
+  name=$1
+  host=$2
+  extra=${3:-""}
+  echo "Killing all processes called $name on $host"
+  ssh ${host} "killall ${extra} ${name}> /dev/null 2>&1 || true" # ignore errors
 }
 
 # Delete the database content
 # \param 1 : number of tasks
 # \param 2 : number of objects
-function cleanDatabase {
+function cleanDatabase() {
   number_tasks=$1
   number_objects=$2
-  for (( task=0; task<$nb_tasks; task++ )); do
+  for ((task = 0; task < $nb_tasks; task++)); do
     name=benchmarkTask_${task}
     cmd="repositoryBenchmark --id test --mq-config ~/alice/QualityControl/Framework/alfa.json --delete 1 --control static \
         --monitoring-url no-op://asdf:1234  \
@@ -116,53 +115,70 @@ sleep_fraction() {
   /usr/bin/perl -e "select(undef, undef, undef, $1)"
 }
 
+# Run the benchmark
+# \param 1 : array of number of tasks
+# \param 2 : array of number of objects
+# \param 3 : array of number of size of objects
+# \param 4 : database url
+function benchmark() {
 
-### Benchmark starts here
-# Loop through the matrix of tests
-for nb_tasks in ${NB_OF_TASKS[@]}; do
-  for nb_objects in ${NB_OF_OBJECTS[@]}; do
-    for size_objects in ${SIZE_OBJECTS[@]}; do
-      echo "*************************** $(date)
+#  NB_OF_TASKS=$1[@]
+#  NB_OF_OBJECTS=$2[@]
+#  SIZE_OBJECTS=$3[@]
+#  DB_URL=$4[@]
+
+  # Loop through the matrix of tests
+  for nb_tasks in ${NB_OF_TASKS[@]}; do
+    for nb_objects in ${NB_OF_OBJECTS[@]}; do
+      for size_objects in ${SIZE_OBJECTS[@]}; do
+        echo "*************************** $(date)
       Launching test for $nb_tasks tasks, $nb_objects objects, $size_objects kB objects"
 
-      echo "Kill all old processes"
-      for machine in ${NODES[@]}; do
-        killAll "repositoryBenchmark" ${machine} "-9"
+        echo "Kill all old processes"
+        for machine in ${NODES[@]}; do
+          killAll "repositoryBenchmark" ${machine} "-9"
+        done
+
+        echo "Now start the tasks"
+        for ((task = 0; task < $nb_tasks; task++)); do
+          echo "*** ~~~ *** Start task"
+
+          # select a node for this task : task % #node -> index of node
+          node_index=$((task % ${#NODES[@]}))
+
+          startTask "${NODES[$node_index]}" benchmarkTask_${task} \
+            "benchmarkTask_${task}_${nb_tasks}_${nb_objects}_${size_objects}" \
+            ${size_objects} ${nb_objects} ${nb_tasks}
+          TASKS_PIDS+=($pidLastTask)
+          sleep_fraction 1/${nb_tasks}
+        done
+
+        echo "Now wait for the tasks to finish "
+        wait ${TASKS_PIDS[*]}
+
+        sleep 5 # leave time to finish
+
+        for machine in ${NODES[@]}; do
+          killAll "repositoryBenchmark" ${machine} "-9"
+        done
+
+        echo "Delete database content"
+        cleanDatabase $nb_tasks $nb_objects
+
+        sleep ${PAUSE_BTW_RUNS} # leave time to finish
+
+        TASKS_PIDS=()
+
+        echo "OK, ready for the next round !"
+
       done
-
-      echo "Now start the tasks"
-      for (( task=0; task<$nb_tasks; task++ )); do
-        echo "*** ~~~ *** Start task"
-
-        # select a node for this task : task % #node -> index of node
-        node_index=$((task%${#NODES[@]}))
-
-        startTask "${NODES[$node_index]}" benchmarkTask_${task} \
-                  "benchmarkTask_${task}_${nb_tasks}_${nb_objects}_${size_objects}" \
-                  ${size_objects} ${nb_objects} ${nb_tasks}
-        TASKS_PIDS+=($pidLastTask)
-        sleep_fraction 1/${nb_tasks}
-      done
-
-      echo "Now wait for the tasks to finish "
-      wait ${TASKS_PIDS[*]}
-
-      sleep 5 # leave time to finish
-
-      for machine in ${NODES[@]}; do
-        killAll "repositoryBenchmark" ${machine} "-9"
-      done
-
-      echo "Delete database content"
-      cleanDatabase $nb_tasks  $nb_objects
-
-      sleep ${PAUSE_BTW_RUNS} # leave time to finish
-
-      TASKS_PIDS=()
-
-      echo "OK, ready for the next round !"
-
     done
   done
-done
+}
 
+NB_OF_TASKS=(1 2 5 10 25 50 100 150)
+NB_OF_OBJECTS=(10)
+SIZE_OBJECTS=(10) # in kB
+DB_URL="ccdb-test.cern.ch:8080"
+
+benchmark
