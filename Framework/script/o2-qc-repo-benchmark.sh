@@ -164,6 +164,35 @@ function benchmark() {
   done
 }
 
+
+
+## old sizes, ccdb-test, benchmark 1
+#NB_OF_TASKS=(10)
+#NB_OF_OBJECTS=(1 10 50 100 150)
+#SIZE_OBJECTS=(10) # in kB
+#DB_URL="ccdb-test.cern.ch:8080"
+#SIZE_OBJECTS_OLD=true
+#
+#benchmark
+#
+## old sizes, ccdb-test, benchmark 2
+#NB_OF_TASKS=(5)
+#NB_OF_OBJECTS=(5)
+#SIZE_OBJECTS=(1 10 100 500 1000 2500 5000) # in kB
+#DB_URL="ccdb-test.cern.ch:8080"
+#SIZE_OBJECTS_OLD=true
+#
+#benchmark
+#
+## old sizes, ccdb-test, benchmark 3
+#NB_OF_TASKS=(1 2 5 10 25 50 100 150)
+#NB_OF_OBJECTS=(10)
+#SIZE_OBJECTS=(10) # in kB
+#DB_URL="ccdb-test.cern.ch:8080"
+#SIZE_OBJECTS_OLD=true
+#
+#benchmark
+
 # old sizes, ccdb-test, benchmark 4
 NB_OF_TASKS=(20)
 NB_OF_OBJECTS=(20)
