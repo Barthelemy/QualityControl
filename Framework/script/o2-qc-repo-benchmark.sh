@@ -6,10 +6,7 @@ set -u # exit when using undeclared variable
 ### Notes
 # One must have ssh keys to connect to all hosts.
 
-### Define matrix of tests
-#NB_OF_TASKS=(1 2 5 10 25 50 100 150)
-#NB_OF_OBJECTS=(10)
-#SIZE_OBJECTS=(10) # in kB
+### THE TESTS DEFINITION IS AT THE END 
 
 ### Misc variables
 # The log prefix will be followed by the benchmark description, e.g. 1 task 1 checker... or an id or both
@@ -17,7 +14,6 @@ LOG_FILE_PREFIX=/tmp/logRepositoryBenchmark_
 NUMBER_CYCLES=180 # ec per cycle -> # seconds
 PAUSE_BTW_RUNS=10 # in seconds, pause between tests
 NUMBER_SMALL_OBJECTS=0
-SIZE_OBJECTS_OLD=true
 #DB_URL="10.161.69.42:8083" ;# "ccdb-test.cern.ch:8080" ;#"aido2qc43:8080" ;#
 #DB_URL="ccdb-test.cern.ch:8080"
 DB_USERNAME=""
@@ -116,16 +112,8 @@ sleep_fraction() {
 }
 
 # Run the benchmark
-# \param 1 : array of number of tasks
-# \param 2 : array of number of objects
-# \param 3 : array of number of size of objects
-# \param 4 : database url
 function benchmark() {
-
-#  NB_OF_TASKS=$1[@]
-#  NB_OF_OBJECTS=$2[@]
-#  SIZE_OBJECTS=$3[@]
-#  DB_URL=$4[@]
+  date
 
   # Loop through the matrix of tests
   for nb_tasks in ${NB_OF_TASKS[@]}; do
@@ -176,9 +164,129 @@ function benchmark() {
   done
 }
 
+# old sizes, ccdb-test, benchmark 4
+NB_OF_TASKS=(20)
+NB_OF_OBJECTS=(20)
+SIZE_OBJECTS=(10 100 500 1000 2500 5000) # in kB
+DB_URL="ccdb-test.cern.ch:8080"
+SIZE_OBJECTS_OLD=true
+
+benchmark
+
+
+
+
+# old sizes, qcdb1, benchmark 1
+NB_OF_TASKS=(10)
+NB_OF_OBJECTS=(1 10 50 100 150)
+SIZE_OBJECTS=(10) # in kB
+DB_URL="10.161.69.42:8083"
+SIZE_OBJECTS_OLD=true
+
+benchmark
+
+# old sizes, qcdb1, benchmark 2
+NB_OF_TASKS=(5)
+NB_OF_OBJECTS=(5)
+SIZE_OBJECTS=(1 10 100 500 1000 2500 5000) # in kB
+DB_URL="10.161.69.42:8083"
+SIZE_OBJECTS_OLD=true
+
+benchmark
+
+# old sizes, qcdb1, benchmark 3
+NB_OF_TASKS=(1 2 5 10 25 50 100 150)
+NB_OF_OBJECTS=(10)
+SIZE_OBJECTS=(10) # in kB
+DB_URL="10.161.69.42:8083"
+SIZE_OBJECTS_OLD=true
+
+benchmark
+
+# old sizes, qcdb1, benchmark 4
+NB_OF_TASKS=(20)
+NB_OF_OBJECTS=(20)
+SIZE_OBJECTS=(10 100 500 1000 2500 5000) # in kB
+DB_URL="10.161.69.42:8083"
+SIZE_OBJECTS_OLD=true
+
+benchmark
+
+
+
+
+# new sizes, ccdb-test, benchmark 1
+NB_OF_TASKS=(10)
+NB_OF_OBJECTS=(1 10 50 100 150)
+SIZE_OBJECTS=(10) # in kB
+DB_URL="ccdb-test.cern.ch:8080"
+SIZE_OBJECTS_OLD=false
+
+benchmark
+
+# new sizes, ccdb-test, benchmark 2
+NB_OF_TASKS=(5)
+NB_OF_OBJECTS=(5)
+SIZE_OBJECTS=(1 10 100 500 1000 2500 5000) # in kB
+DB_URL="ccdb-test.cern.ch:8080"
+SIZE_OBJECTS_OLD=false
+
+benchmark
+
+# new sizes, ccdb-test, benchmark 3
 NB_OF_TASKS=(1 2 5 10 25 50 100 150)
 NB_OF_OBJECTS=(10)
 SIZE_OBJECTS=(10) # in kB
 DB_URL="ccdb-test.cern.ch:8080"
+SIZE_OBJECTS_OLD=false
+
+benchmark
+
+# new sizes, ccdb-test, benchmark 4
+NB_OF_TASKS=(20)
+NB_OF_OBJECTS=(20)
+SIZE_OBJECTS=(10 100 500 1000 2500 5000) # in kB
+DB_URL="ccdb-test.cern.ch:8080"
+SIZE_OBJECTS_OLD=false
+
+benchmark
+
+
+
+
+
+# new sizes, qcdb1, benchmark 1
+NB_OF_TASKS=(10)
+NB_OF_OBJECTS=(1 10 50 100 150)
+SIZE_OBJECTS=(10) # in kB
+DB_URL="10.161.69.42:8083"
+SIZE_OBJECTS_OLD=false
+
+benchmark
+
+# new sizes, qcdb1, benchmark 2
+NB_OF_TASKS=(5)
+NB_OF_OBJECTS=(5)
+SIZE_OBJECTS=(1 10 100 500 1000 2500 5000) # in kB
+DB_URL="10.161.69.42:8083"
+SIZE_OBJECTS_OLD=false
+
+benchmark
+
+# new sizes, qcdb1, benchmark 3
+NB_OF_TASKS=(1 2 5 10 25 50 100 150)
+NB_OF_OBJECTS=(10)
+SIZE_OBJECTS=(10) # in kB
+DB_URL="10.161.69.42:8083"
+SIZE_OBJECTS_OLD=false
+
+benchmark
+
+# new sizes, qcdb1, benchmark 4
+NB_OF_TASKS=(20)
+NB_OF_OBJECTS=(20)
+SIZE_OBJECTS=(10 100 500 1000 2500 5000) # in kB
+DB_URL="10.161.69.42:8083"
+SIZE_OBJECTS_OLD=false
 
 benchmark
