@@ -17,7 +17,7 @@
 #ifndef QC_CORE_TASKRUNNER_H
 #define QC_CORE_TASKRUNNER_H
 
-#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ptree_fwd.hpp>
 
 // O2
 #include <Common/Timer.h>
@@ -123,7 +123,7 @@ class TaskRunner : public framework::Task
  private:
   std::string mDeviceName;
   TaskConfig mTaskConfig;
-  std::shared_ptr<configuration::ConfigurationInterface> mConfigFile; // used in init only
+  boost::property_tree::ptree mConfigTree;
   std::shared_ptr<monitoring::Monitoring> mCollector;
   std::shared_ptr<TaskInterface> mTask;
   bool mResetAfterPublish = false;

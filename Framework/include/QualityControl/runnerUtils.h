@@ -22,6 +22,7 @@
 #include <Framework/RawDeviceService.h>
 #include <FairMQDevice.h>
 #include <Framework/ConfigParamRegistry.h>
+#include <boost/property_tree/ptree_fwd.hpp>
 
 namespace o2::quality_control::core
 {
@@ -78,6 +79,24 @@ inline int computeRunNumber(const framework::ServiceRegistry& services, const bo
   }
   run = run > 0 /* found it in service */ ? run : config.get<int>("qc.config.Activity.number", 0);
   return run;
+}
+
+std::unordered_map<std::string, std::string> getRecursiveMap(const  boost::property_tree::ptree& tree)
+{
+  std::unordered_map<std::string, std::string> map;
+
+  // define lambda to recursively interate tree
+  using boost::property_tree::ptree;
+  std::function<void(const ptree&, std::string)> parse = [&](const ptree& node, std::string key) {
+    map[key] = node.data();
+    key = key.empty() ? "" : key + ".";
+    for (auto const &it: node) {
+      parse(it.second, key + it.first);
+    }
+  };
+
+  parse(tree, std::string());
+  return map;
 }
 
 } // namespace o2::quality_control::core

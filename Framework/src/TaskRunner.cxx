@@ -62,8 +62,9 @@ TaskRunner::TaskRunner(const std::string& taskName, const std::string& configura
   try {
     mTaskConfig.taskName = taskName;
     mTaskConfig.parallelTaskID = id;
-    mConfigFile = ConfigurationFactory::getConfiguration(configurationSource);
-    loadTopologyConfig();
+    auto config = ConfigurationFactory::getConfiguration(configurationSource);
+    mConfigTree = config->getRecursive();
+    loadTopologyConfig(config);
   } catch (...) {
     // catch the configuration exception and print it to avoid losing it
     ILOG(Fatal, Ops) << "Unexpected exception during configuration:\n"
@@ -80,7 +81,7 @@ void TaskRunner::init(InitContext& iCtx)
   } catch (const RuntimeErrorRef& err) {
     ILOG(Error) << "Could not find the DPL InfoLogger Context." << ENDM;
   }
-  ILOG_INST.init("task/" + mTaskConfig.taskName, mConfigFile->getRecursive(), ilContext);
+  ILOG_INST.init("task/" + mTaskConfig.taskName, mConfigTree, ilContext);
 
   ILOG(Info, Support) << "Initializing TaskRunner" << ENDM;
   try {
@@ -98,7 +99,7 @@ void TaskRunner::init(InitContext& iCtx)
   iCtx.services().get<CallbackService>().set(CallbackService::Id::Reset, [this]() { reset(); });
 
   // setup monitoring
-  auto monitoringUrl = mConfigFile->get<std::string>("qc.config.monitoring.url", "infologger:///debug?qc");
+  auto monitoringUrl = mConfigTree.get<std::string>("qc.config.monitoring.url", "infologger:///debug?qc");
   mCollector = MonitoringFactory::Get(monitoringUrl);
   mCollector->enableProcessMonitoring();
   mCollector->addGlobalTag(tags::Key::Subsystem, tags::Value::QC);
@@ -221,7 +222,7 @@ void TaskRunner::endOfStream(framework::EndOfStreamContext& eosContext)
 
 void TaskRunner::start(const ServiceRegistry& services)
 {
-  o2::quality_control::core::computeRunNumber(services, mConfigFile->getRecursive());
+  o2::quality_control::core::computeRunNumber(services, mConfigTree);
 
   try {
     startOfActivity();
@@ -301,15 +302,15 @@ std::tuple<bool /*data ready*/, bool /*timer ready*/> TaskRunner::validateInputs
 void TaskRunner::loadTopologyConfig()
 {
   auto taskConfigTree = getTaskConfigTree();
-  auto policiesFilePath = mConfigFile->get<std::string>("dataSamplingPolicyFile", "");
-  std::shared_ptr<configuration::ConfigurationInterface> config = policiesFilePath.empty() ? mConfigFile : ConfigurationFactory::getConfiguration(policiesFilePath);
+  auto policiesFilePath = configFile->get<std::string>("dataSamplingPolicyFile", "");
+  auto config = policiesFilePath.empty() ? make_unique<ConfigurationInterface>(configFile) : ConfigurationFactory::getConfiguration(policiesFilePath);
   auto dataSourceTree = taskConfigTree.get_child("dataSource");
   auto type = dataSourceTree.get<std::string>("type");
 
   if (type == "dataSamplingPolicy") {
     auto policyName = dataSourceTree.get<std::string>("name");
     ILOG(Info, Support) << "policyName : " << policyName << ENDM;
-    mInputSpecs = DataSampling::InputSpecsForPolicy(config.get(), policyName);
+    mInputSpecs = DataSampling::InputSpecsForPolicy(config, policyName);
   } else if (type == "direct") {
     auto inputsQuery = dataSourceTree.get<std::string>("query");
     mInputSpecs = DataDescriptorQueryBuilder::parse(inputsQuery.c_str());
@@ -328,7 +329,11 @@ void TaskRunner::loadTopologyConfig()
 
 boost::property_tree::ptree TaskRunner::getTaskConfigTree() const
 {
-  auto tasksConfigList = mConfigFile->getRecursive("qc.tasks");
+  // todo : try to get a fresh version of the config from the control via fairmq and dpl
+  // todo : if it is not there we just keep what we have.
+  // auto temp = services.get<framework::RawDeviceService>().device()->fConfig->GetProperty<std::string>("runNumber", "unspecified");
+
+  auto tasksConfigList = mConfigTree.get_child("qc.tasks");
   auto taskConfigTree = tasksConfigList.find(mTaskConfig.taskName);
   if (taskConfigTree == tasksConfigList.not_found()) {
     std::string message = "No configuration found for task \"" + mTaskConfig.taskName + "\"";
@@ -348,11 +353,11 @@ void TaskRunner::loadTaskConfig()
   mTaskConfig.moduleName = taskConfigTree.get<std::string>("moduleName");
   mTaskConfig.className = taskConfigTree.get<std::string>("className");
   mTaskConfig.maxNumberCycles = taskConfigTree.get<int>("maxNumberCycles", -1);
-  mTaskConfig.consulUrl = mConfigFile->get<std::string>("qc.config.consul.url", "");
-  mTaskConfig.conditionUrl = mConfigFile->get<std::string>("qc.config.conditionDB.url", "http://ccdb-test.cern.ch:8080");
+  mTaskConfig.consulUrl = mConfigTree.get<std::string>("qc.config.consul.url", "");
+  mTaskConfig.conditionUrl = mConfigTree.get<std::string>("qc.config.conditionDB.url", "http://ccdb-test.cern.ch:8080");
   mTaskConfig.saveToFile = taskConfigTree.get<std::string>("saveObjectsToFile", "");
   try {
-    mTaskConfig.customParameters = mConfigFile->getRecursiveMap("qc.tasks." + mTaskConfig.taskName + ".taskParameters");
+    mTaskConfig.customParameters = getRecursiveMap(mConfigTree.get_child("qc.tasks." + mTaskConfig.taskName + ".taskParameters"));
   } catch (...) {
     ILOG(Debug, Support) << "No custom parameters for " << mTaskConfig.taskName << ENDM;
   }
@@ -399,7 +404,7 @@ void TaskRunner::startOfActivity()
 
   // Start activity in module's stask and update objectsManager
   Activity activity(mRunNumber,
-                    mConfigFile->get<int>("qc.config.Activity.type"));
+                    mConfigTree.get<int>("qc.config.Activity.type"));
   ILOG(Info, Ops) << "Starting run " << mRunNumber << ENDM;
   mCollector->setRunNumber(mRunNumber);
   mTask->startOfActivity(activity);
@@ -410,7 +415,7 @@ void TaskRunner::startOfActivity()
 void TaskRunner::endOfActivity()
 {
   Activity activity(mRunNumber,
-                    mConfigFile->get<int>("qc.config.Activity.type"));
+                    mConfigTree.get<int>("qc.config.Activity.type"));
   mTask->endOfActivity(activity);
   mObjectsManager->removeAllFromServiceDiscovery();
 
