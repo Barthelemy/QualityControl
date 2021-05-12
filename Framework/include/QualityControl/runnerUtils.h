@@ -81,7 +81,7 @@ inline int computeRunNumber(const framework::ServiceRegistry& services, const bo
   return run;
 }
 
-std::unordered_map<std::string, std::string> getRecursiveMap(const  boost::property_tree::ptree& tree)
+inline std::unordered_map<std::string, std::string> getKeyValueMap(const  boost::property_tree::ptree& tree)
 {
   std::unordered_map<std::string, std::string> map;
 

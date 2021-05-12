@@ -64,7 +64,11 @@ TaskRunner::TaskRunner(const std::string& taskName, const std::string& configura
     mTaskConfig.parallelTaskID = id;
     auto config = ConfigurationFactory::getConfiguration(configurationSource);
     mConfigTree = config->getRecursive();
+<<<<<<< Updated upstream
     loadTopologyConfig(config);
+=======
+    loadTopologyConfig();
+>>>>>>> Stashed changes
   } catch (...) {
     // catch the configuration exception and print it to avoid losing it
     ILOG(Fatal, Ops) << "Unexpected exception during configuration:\n"
@@ -302,15 +306,16 @@ std::tuple<bool /*data ready*/, bool /*timer ready*/> TaskRunner::validateInputs
 void TaskRunner::loadTopologyConfig()
 {
   auto taskConfigTree = getTaskConfigTree();
-  auto policiesFilePath = configFile->get<std::string>("dataSamplingPolicyFile", "");
-  auto config = policiesFilePath.empty() ? make_unique<ConfigurationInterface>(configFile) : ConfigurationFactory::getConfiguration(policiesFilePath);
+//  auto policiesFilePath = configFile->get<std::string>("dataSamplingPolicyFile", "");
+//  auto config = policiesFilePath.empty() ? make_unique<ConfigurationInterface>(configFile) : ConfigurationFactory::getConfiguration(policiesFilePath);
+  // todo : should I try to redo what is just above ?
   auto dataSourceTree = taskConfigTree.get_child("dataSource");
   auto type = dataSourceTree.get<std::string>("type");
 
   if (type == "dataSamplingPolicy") {
     auto policyName = dataSourceTree.get<std::string>("name");
     ILOG(Info, Support) << "policyName : " << policyName << ENDM;
-    mInputSpecs = DataSampling::InputSpecsForPolicy(config, policyName);
+    mInputSpecs = DataSampling::InputSpecsForPolicy(mConfigTree, policyName);
   } else if (type == "direct") {
     auto inputsQuery = dataSourceTree.get<std::string>("query");
     mInputSpecs = DataDescriptorQueryBuilder::parse(inputsQuery.c_str());
@@ -357,7 +362,7 @@ void TaskRunner::loadTaskConfig()
   mTaskConfig.conditionUrl = mConfigTree.get<std::string>("qc.config.conditionDB.url", "http://ccdb-test.cern.ch:8080");
   mTaskConfig.saveToFile = taskConfigTree.get<std::string>("saveObjectsToFile", "");
   try {
-    mTaskConfig.customParameters = getRecursiveMap(mConfigTree.get_child("qc.tasks." + mTaskConfig.taskName + ".taskParameters"));
+    mTaskConfig.customParameters = getKeyValueMap(mConfigTree.get_child("qc.tasks." + mTaskConfig.taskName + ".taskParameters"));
   } catch (...) {
     ILOG(Debug, Support) << "No custom parameters for " << mTaskConfig.taskName << ENDM;
   }
