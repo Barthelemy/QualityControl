@@ -176,7 +176,9 @@ TH1* RepositoryBenchmark::createHisto(uint64_t sizeObjects, string name, bool ol
     mMonitoring->send(Metric{ "ccdb_benchmark" }
                         .addValue(mNumberObjects, "number_objects")
                         .addValue(mSizeObjects * 1000, "size_objects")
-                        .addValue(numberTasks, "number_tasks"));
+                        .addValue(numberTasks, "number_tasks")
+                        .addValue(nbSmallObjects, "number_small_objects")
+                        .addValue(dbUrl, "database"));
   }
 
   if (mDeletionMode) {
