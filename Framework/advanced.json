@@ -13,7 +13,7 @@
         "type": "2"
       },
       "monitoring": {
-        "url": "infologger:///debug?qc"
+        "url": "stdout://?qc,influxdb-udp://flptest1.cern.ch:8089"
       },
       "consul": {
         "url": ""
@@ -44,6 +44,7 @@
         "active": "true",
         "className": "o2::quality_control_modules::skeleton::SkeletonTask",
         "moduleName": "QcSkeleton",
+        "detectorName": "TST",
         "cycleDurationSeconds": "10",
         "maxNumberCycles": "-1",
         "dataSource": {

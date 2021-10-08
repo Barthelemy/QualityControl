@@ -16,7 +16,7 @@
         "provenance": "qc",         "": "Provenance - qc or qc_mc depending whether it is normal data or monte carlo data"
       },
       "monitoring": {
-        "url": "infologger:///debug?qc"
+        "url": "stdout://?qc,influxdb-udp://flptest1.cern.ch:8089"
       },
       "consul": {
         "url": ""

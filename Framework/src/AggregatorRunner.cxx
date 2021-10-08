@@ -50,7 +50,10 @@ AggregatorRunner::AggregatorRunner(AggregatorRunnerConfig arc, const std::vector
   : mDeviceName(createAggregatorRunnerName()),
     mRunnerConfig(std::move(arc)),
     mAggregatorsConfigs(acs),
-    mTotalNumberObjectsReceived(0)
+    mTotalNumberObjectsReceived(0),
+    mTotalNumberAggregatorExecuted(0),
+    mTotalNumberObjectsProduced(0),
+    mTotalNumberObjectsStored(0)
 {
   // prepare list of all inputs
   // we cannot use the binding of the output because it is empty.
@@ -176,6 +179,7 @@ void AggregatorRunner::store(QualityObjectsType& qualityObjects)
     for (auto& qo : qualityObjects) {
       qo->setActivity(mActivity);
       mDatabase->storeQO(qo);
+      mTotalNumberObjectsStored++;
     }
   } catch (boost::exception& e) {
     ILOG(Info, Devel) << "Unable to " << diagnostic_information(e) << ENDM;
@@ -193,8 +197,8 @@ void AggregatorRunner::initDatabase()
 
 void AggregatorRunner::initMonitoring()
 {
+  cout << "mRunnerConfig.monitoringUrl : " << mRunnerConfig.monitoringUrl << endl;
   mCollector = MonitoringFactory::Get(mRunnerConfig.monitoringUrl);
-  mCollector->enableProcessMonitoring();
   mCollector->addGlobalTag(tags::Key::Subsystem, tags::Value::QC);
   mCollector->addGlobalTag("AggregatorRunnerName", mDeviceName);
   mTimer.reset(1000000); // 10 s.
@@ -308,7 +312,11 @@ void AggregatorRunner::sendPeriodicMonitoring()
 {
   if (mTimer.isTimeout()) {
     mTimer.reset(1000000); // 10 s.
-    mCollector->send({ mTotalNumberObjectsReceived, "qc_objects_received" }, DerivedMetricMode::RATE);
+    mCollector->send({ mTotalNumberObjectsReceived, "qc_aggregator_objects_received" });
+    mCollector->send({ mTotalNumberObjectsProduced, "qc_aggregator_objects_produced" });
+    mCollector->send({ mTotalNumberAggregatorExecuted, "qc_aggregator_agg_executed" });
+    mCollector->send({ mTotalNumberObjectsStored, "qc_aggregator_objects_stored" });
+    mCollector->send({ mTimerTotalDurationActivity.getTime(), "qc_aggregator_duration" });
   }
 }
 
@@ -320,6 +328,7 @@ void AggregatorRunner::start(const ServiceRegistry& services)
   mActivity.mProvenance = computeProvenance(mRunnerConfig.fallbackProvenance);
   ILOG(Info, Ops) << "Starting run " << mActivity.mId << ":"
                   << "\n   - period: " << mActivity.mPeriodName << "\n   - pass type: " << mActivity.mPassName << "\n   - provenance: " << mActivity.mProvenance << ENDM;
+  mTimerTotalDurationActivity.reset();
 }
 
 
@@ -341,6 +350,11 @@ void AggregatorRunner::reset()
                          << current_diagnostic(true) << ENDM;
     throw;
   }
+
+  mTotalNumberAggregatorExecuted = 0;
+  mTotalNumberObjectsProduced = 0;
+  mTotalNumberObjectsReceived = 0;
+  mTotalNumberObjectsStored = 0;
 }
 
 } // namespace o2::quality_control::checker
