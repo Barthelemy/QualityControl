@@ -95,10 +95,10 @@ class TaskRunner : public framework::Task
   static std::string createTaskRunnerIdString();
   /// \brief Unified DataOrigin for Quality Control tasks
   static header::DataOrigin createTaskDataOrigin();
-  /// \brief Unified DataDescription naming scheme for all tasks
-  static header::DataDescription createTaskDataDescription(const std::string& taskName);
+  /// \brief Unified DataDescription naming scheme for all tasks: [det:3][taskname]
+  static header::DataDescription createTaskDataDescription(const std::string& taskName, const std::string& detName);
   /// \brief Unified DataDescription naming scheme for all timers
-  static header::DataDescription createTimerDataDescription(const std::string& taskName);
+  static header::DataDescription createTimerDataDescription(const std::string& taskName, const std::string& detName);
 
   /// \brief Callback for CallbackService::Id::EndOfStream
   void endOfStream(framework::EndOfStreamContext& eosContext) override;

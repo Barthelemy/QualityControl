@@ -63,13 +63,13 @@ TaskRunnerConfig TaskRunnerFactory::extractConfig(const CommonSpec& globalConfig
   auto inputs = taskSpec.dataSource.inputs;
   inputs.emplace_back("timer-cycle",
                       TaskRunner::createTaskDataOrigin(),
-                      TaskRunner::createTimerDataDescription(taskSpec.taskName),
+                      TaskRunner::createTimerDataDescription(taskSpec.taskName, taskSpec.detectorName),
                       0,
                       Lifetime::Timer);
 
   OutputSpec monitorObjectsSpec{ { "mo" },
                                  TaskRunner::createTaskDataOrigin(),
-                                 TaskRunner::createTaskDataDescription(taskSpec.taskName),
+                                 TaskRunner::createTaskDataDescription(taskSpec.taskName, taskSpec.detectorName),
                                  static_cast<header::DataHeader::SubSpecificationType>(parallelTaskID),
                                  Lifetime::Sporadic };
 

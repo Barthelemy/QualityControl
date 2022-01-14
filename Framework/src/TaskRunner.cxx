@@ -191,26 +191,27 @@ header::DataOrigin TaskRunner::createTaskDataOrigin()
   return header::DataOrigin{ "QC" };
 }
 
-header::DataDescription TaskRunner::createTaskDataDescription(const std::string& taskName)
+header::DataDescription TaskRunner::createTaskDataDescription(const std::string& taskName, const std::string& detName)
 {
   if (taskName.empty()) {
     BOOST_THROW_EXCEPTION(FatalException() << errinfo_details("Empty taskName for task's data description"));
   }
   o2::header::DataDescription description;
-  if (taskName.length() > header::DataDescription::size) {
-    ILOG(Warning, Devel) << "Task name is longer than " << (int)header::DataDescription::size << ", it might cause name clashes in the DPL workflow" << ENDM;
+  if (taskName.length() - 3 > header::DataDescription::size) {
+    ILOG(Warning, Devel) << "Task name is longer than " << (int)header::DataDescription::size - 3 << ", it might cause name clashes in the DPL workflow" << ENDM;
   }
-  description.runtimeInit(std::string(taskName.substr(0, header::DataDescription::size)).c_str());
+  std::string detName3Letters = detName.substr(0, 3);
+  description.runtimeInit(std::string(detName3Letters + taskName.substr(0, header::DataDescription::size)).c_str());
   return description;
 }
 
-header::DataDescription TaskRunner::createTimerDataDescription(const std::string& taskName)
+header::DataDescription TaskRunner::createTimerDataDescription(const std::string& taskName, const std::string& detName)
 {
   if (taskName.empty()) {
     BOOST_THROW_EXCEPTION(FatalException() << errinfo_details("Empty taskName for timers's data description"));
   }
-  // hash the taskName to avoid clashing if the name is long and the beginning is identical
-  auto hashedName = std::hash<std::string>{}(taskName);
+  // hash the detName and taskName to avoid clashing if the name is long and the beginning is identical
+  auto hashedName = std::hash<std::string>{}(detName + taskName);
   hashedName = hashedName % 10000000000LU; // 10 characters max
   std::ostringstream ss;
   ss << std::setw(10) << std::setfill('0') << hashedName; // 10 characters min
