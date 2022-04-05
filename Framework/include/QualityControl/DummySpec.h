@@ -20,14 +20,9 @@
 #include <string>
 #include <memory>
 
-#include <TH1F.h>
-#include <TObjArray.h>
-
 #include <Framework/Task.h>
 #include <Framework/DataRefUtils.h>
-
-#include "QualityControl/MonitorObject.h"
-#include "QualityControl/QualityObject.h"
+#include <Framework/ProcessingContext.h>
 
 namespace o2::quality_control::example
 {
@@ -36,10 +31,10 @@ namespace o2::quality_control::example
  * \brief Dummy, empty, Spec to be used in tests.
  *
  */
-class ExamplePrinterSpec : public framework::Task
+class DummySpec : public framework::Task
 {
  public:
-  void run(ProcessingContext& processingContext) final
+  void run(framework::ProcessingContext& processingContext) final
   {
     LOG(info) << "Received data";
   }

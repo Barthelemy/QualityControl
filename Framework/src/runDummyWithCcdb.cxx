@@ -36,6 +36,7 @@
 
 #include <DataSampling/DataSampling.h>
 #include "QualityControl/InfrastructureGenerator.h"
+#include "QualityControl/DummySpec.h"
 
 using namespace o2;
 using namespace o2::framework;
@@ -61,7 +62,7 @@ void customize(std::vector<ConfigParamSpec>& workflowOptions)
   workflowOptions.push_back(
     ConfigParamSpec{ "config-path", VariantType::String, "", { "Absolute path to the config file. Overwrite the default paths. Do not use with no-data-sampling." } });
   workflowOptions.push_back(
-    ConfigParamSpec{ "no-data-sampling", VariantType::Bool, false, { "Skips data sampling, connects directly the task to the producer." } });
+    ConfigParamSpec{ "no-producer", VariantType::Bool, false, { "Removes the producer." } });
 }
 
 #include <string>
@@ -76,7 +77,7 @@ void customize(std::vector<ConfigParamSpec>& workflowOptions)
 #include "QualityControl/ExamplePrinterSpec.h"
 #include "QualityControl/DataProducer.h"
 #include "QualityControl/TaskRunner.h"
-#include "Framework/CCDBParamSpec.h"
+#include "Framework/DataDescriptorQueryBuilder.h"
 
 std::string getConfigPath(const ConfigContext& config);
 
@@ -92,12 +93,16 @@ WorkflowSpec defineDataProcessing(const ConfigContext& config)
 
   QcInfoLogger::setFacility("runDummyWithCcdb");
 
-  // The producer to generate some data in the workflow
-  DataProcessorSpec producer = getDataProducerSpec(1, 10000, 10);
-  specs.push_back(producer);
+  // The producer to generate some data in the workflow, needed if not ran by aliecs
+  bool noProducer = config.options().get<bool>("no-producer");
+  if(!noProducer) {
+    DataProcessorSpec producer = getDataProducerSpec(1, 10000, 10);
+    specs.push_back(producer);
+  }
 
   // Path to the config file
-  std::string qcConfigurationSource = getConfigPath(config);
+  auto userConfigPath = config.options().get<std::string>("config-path");
+  std::string qcConfigurationSource = std::string("json://") + userConfigPath ;
   ILOG(Info, Ops) << "Using config file '" << qcConfigurationSource << "'" << ENDM;
 
   // Generation of Data Sampling infrastructure
@@ -105,30 +110,14 @@ WorkflowSpec defineDataProcessing(const ConfigContext& config)
   auto dataSamplingTree = configInterface->getRecursive("dataSamplingPolicies");
   DataSampling::GenerateInfrastructure(specs, dataSamplingTree);
 
-    DataProcessorSpec printer{
-      "printer",
-      Inputs{
-        { "tst-raw0/0", "DS", "tst-raw0", 0 }, // connect to DS
-        {"gains", "CPV", "CPV_Gains", 0, o2::framework::Lifetime::Condition, o2::framework::ccdbParamSpec("CPV/Calib/Gains")}}, // Connect to CCDB
-      Outputs{},
-      adaptFromTask<o2::quality_control::example::ExamplePrinterSpec>()
-    };
-    specs.push_back(printer);
-//  }
+  Inputs inputs = DataDescriptorQueryBuilder::parse("dummy:DS/tst-raw0/0?lifetime=condition&ccdb-path=GRP/GRP/LHCData/1613572714972");
+  DataProcessorSpec dummy{
+    "dummy",
+    inputs,
+    Outputs{},
+    adaptFromTask<o2::quality_control::example::DummySpec>()
+  };
+  specs.push_back(dummy);
 
   return specs;
-}
-
-// TODO merge this with the one from runReadout.cxx
-std::string getConfigPath(const ConfigContext& config)
-{
-  // Determine the default config file path and name (based on option no-data-sampling and the QC_ROOT path)
-  bool noDS = config.options().get<bool>("no-data-sampling");
-  std::string filename = !noDS ? "basic.json" : "basic-no-sampling.json";
-  std::string defaultConfigPath = getenv("QUALITYCONTROL_ROOT") != nullptr ? std::string(getenv("QUALITYCONTROL_ROOT")) + "/etc/" + filename : "$QUALITYCONTROL_ROOT undefined";
-  // The the optional one by the user
-  auto userConfigPath = config.options().get<std::string>("config-path");
-  // Finally build the config path based on the default or the user-base one
-  std::string path = std::string("json://") + (userConfigPath.empty() ? defaultConfigPath : userConfigPath);
-  return path;
 }
