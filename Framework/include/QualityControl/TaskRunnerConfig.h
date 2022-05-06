@@ -34,6 +34,8 @@ struct TaskRunnerConfig {
   std::string className;
   int cycleDurationSeconds;
   int maxNumberCycles;
+  int sorCycleDurationSeconds;
+  int secondsBeforeSwitchToNormalCycle;
   std::string consulUrl{};
   std::string conditionUrl{};
   std::string monitoringUrl{};

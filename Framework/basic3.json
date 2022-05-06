@@ -6,8 +6,7 @@
         "host": "ccdb-test.cern.ch:8080",
         "username": "not_applicable",
         "password": "not_applicable",
-        "name": "not_applicable",
-        "maxObjectSize": "2097152",       "": "[Bytes, default=2MB] Maximum size allowed, larger objects are rejected."
+        "name": "not_applicable"
       },
       "Activity": {
         "number": "42",
@@ -31,19 +30,17 @@
       }
     },
     "tasks": {
-      "QcTask": {
+      "QcTask3": {
         "active": "true",
         "className": "o2::quality_control_modules::skeleton::SkeletonTask",
         "moduleName": "QcSkeleton",
         "detectorName": "TST",
-        "cycleDurationSeconds": "30",     "": "10 seconds minimum",
+        "cycleDurationSeconds": "10",
         "maxNumberCycles": "-1",
-        "sorCycleDurationSeconds": "10",
-        "secondsBeforeSwitchToNormalCycle": "30",
+        "": "The other type of dataSource is \"direct\", see basic-no-sampling.json.",
         "dataSource": {
-          "": "The other type of dataSource is \"direct\", see basic-no-sampling.json.",
           "type": "dataSamplingPolicy",
-          "name": "tst-raw"
+          "name": "tst-raw3"
         },
         "taskParameters": {
           "myOwnKey": "myOwnValue"
@@ -53,7 +50,7 @@
       }
     },
     "checks": {
-      "QcCheck": {
+      "QcCheck3": {
         "active": "true",
         "className": "o2::quality_control_modules::skeleton::SkeletonCheck",
         "moduleName": "QcSkeleton",
@@ -69,7 +66,7 @@
   },
   "dataSamplingPolicies": [
     {
-      "id": "tst-raw",
+      "id": "tst-raw3",
       "active": "true",
       "machines": [],
       "query": "random:TST/RAWDATA/0",

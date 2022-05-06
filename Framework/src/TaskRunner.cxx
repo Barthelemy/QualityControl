@@ -363,6 +363,8 @@ void TaskRunner::printTaskConfig()
   ILOG(Info, Support) << ">> Detector name : " << mTaskConfig.detectorName << ENDM;
   ILOG(Info, Support) << ">> Cycle duration seconds : " << mTaskConfig.cycleDurationSeconds << ENDM;
   ILOG(Info, Support) << ">> Max number cycles : " << mTaskConfig.maxNumberCycles << ENDM;
+  ILOG(Info, Support) << ">> Cycle duration at the beginning of the run : " << mTaskConfig.sorCycleDurationSeconds << ENDM;
+  ILOG(Info, Support) << ">> Seconds before switching to normal cycle duration : " << mTaskConfig.secondsBeforeSwitchToNormalCycle << ENDM;
   ILOG(Info, Support) << ">> Save to file : " << mTaskConfig.saveToFile << ENDM;
 }
 

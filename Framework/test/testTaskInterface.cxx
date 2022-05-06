@@ -176,6 +176,8 @@ BOOST_AUTO_TEST_CASE(test_task_factory)
     "o2::quality_control_modules::skeleton::SkeletonTask",
     10,
     -1,
+    -1,
+    -1,
     "http://consul-test.cern.ch:8500"
   };
 

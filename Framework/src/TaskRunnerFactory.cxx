@@ -66,6 +66,16 @@ TaskRunnerConfig TaskRunnerFactory::extractConfig(const CommonSpec& globalConfig
     ILOG(Error, Support) << "Cycle duration is too short (" << cycleDurationSeconds << "), replaced by a duration of 10 seconds." << ENDM;
     cycleDurationSeconds = 10;
   }
+  auto sorCycleDurationSeconds = taskSpec.sorCycleDurationSeconds;
+  if(sorCycleDurationSeconds < 10) {
+    ILOG(Error, Support) << "SOR cycle duration is too short (" << cycleDurationSeconds << "), replaced by a duration of 10 seconds." << ENDM;
+    sorCycleDurationSeconds = 10;
+  }
+  auto secondsBeforeSwitchToNormalCycle = taskSpec.secondsBeforeSwitchToNormalCycle;
+  if(secondsBeforeSwitchToNormalCycle > 900 /* 15 minutes */) {
+    ILOG(Error, Support) << "Time before switching to normal cycle duration is too long (" << secondsBeforeSwitchToNormalCycle << "), replaced by a duration of 15 minutes." << ENDM;
+    secondsBeforeSwitchToNormalCycle = 900;
+  }
   auto inputs = taskSpec.dataSource.inputs;
   inputs.emplace_back("timer-cycle",
                       TaskRunner::createTaskDataOrigin(),
@@ -81,6 +91,8 @@ TaskRunnerConfig TaskRunnerFactory::extractConfig(const CommonSpec& globalConfig
 
   Options options{
     { "period-timer-cycle", framework::VariantType::Int, static_cast<int>(taskSpec.cycleDurationSeconds * 1000000), { "timer period" } },
+    { "period-timer-cycle-start", framework::VariantType::Int, static_cast<int>(taskSpec.sorCycleDurationSeconds * 1000000), { "timer period" } },
+    { "period-timer-cycle-start-switch", framework::VariantType::Int, static_cast<int>(taskSpec.secondsBeforeSwitchToNormalCycle * 1000000), { "timer period" } },
     { "runNumber", framework::VariantType::String, { "Run number" } },
     { "qcConfiguration", VariantType::Dict, emptyDict(), { "Some dictionary configuration" } }
   };
@@ -92,6 +104,8 @@ TaskRunnerConfig TaskRunnerFactory::extractConfig(const CommonSpec& globalConfig
     taskSpec.className,
     cycleDurationSeconds,
     taskSpec.maxNumberCycles,
+    sorCycleDurationSeconds,
+    secondsBeforeSwitchToNormalCycle,
     globalConfig.consulUrl,
     globalConfig.conditionDBUrl,
     globalConfig.monitoringUrl,

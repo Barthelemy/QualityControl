@@ -53,6 +53,8 @@ struct TaskSpec {
   std::string moduleName = "Invalid";
   std::string detectorName = "Invalid";
   int cycleDurationSeconds = -1;
+  int sorCycleDurationSeconds = -1;
+  int secondsBeforeSwitchToNormalCycle = -1;
   DataSourceSpec dataSource;
   // advanced
   bool active = true;
