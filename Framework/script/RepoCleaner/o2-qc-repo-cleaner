@@ -89,6 +89,8 @@ def parseArgs():
                         help='Only work on given path (omit the initial slash).')
     parser.add_argument('--workers', dest='workers', action='store', default="1",
                         help='Number of parallel workers.')
+    parser.add_argument('--deletion-log', dest='deletion_log', action='store', default="",
+                        help='Log the path of deleted objects in the indicated file.')
     args = parser.parse_args()
     dryable.set(args.dry_run)
     logging.info(args)
@@ -321,7 +323,7 @@ def process_object(object_path, rules, ccdb, args):
 def run(args, ccdb_url, rules):
 
     # Get list of objects from CCDB
-    ccdb = Ccdb(ccdb_url)
+    ccdb = Ccdb(ccdb_url, args.deletion_log)
     ccdb.logger = logging.getLogger
     paths = ccdb.getObjectsList(getTimestampLastExecution())
     if args.only_path != '':

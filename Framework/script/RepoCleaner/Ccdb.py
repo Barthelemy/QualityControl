@@ -51,10 +51,18 @@ class Ccdb:
     counter_deleted: int = 0
     counter_validity_updated: int = 0
     counter_preserved: int = 0
+    deletion_log_file = None
 
-    def __init__(self, url):
+    def __init__(self, url, deletion_log):
         logger.info(f"Instantiate CCDB at {url}")
         self.url = url
+        if deletion_log != "":
+            self.deletion_log_file = open(deletion_log, "a")
+            logger.info(f"Deletions will be logged in {deletion_log}")
+
+    def __del__(self):
+        if self.deletion_log_file is not None:
+            self.deletion_log_file.close()
 
     def getObjectsList(self, added_since: int = 0) -> List[str]:
         '''
@@ -115,6 +123,8 @@ class Ccdb:
             r = requests.delete(url_delete, headers=headers)
             r.raise_for_status()
             self.counter_deleted += 1
+            if self.deletion_log_file is not None:
+                self.deletion_log_file.write(version.path + '/' + str(version.validFrom) + '/' + version.uuid)
         except requests.exceptions.RequestException as e:  
             print(e)
             sys.exit(1)  # really ? 
