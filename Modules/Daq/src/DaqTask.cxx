@@ -27,7 +27,7 @@
 #include <Framework/InputRecord.h>
 #include <Framework/InputRecordWalker.h>
 #include <Headers/DataHeaderHelpers.h>
-#include <BookkeepingApi/BookkeepingClient.h>
+#include <BookkeepingApi/BookkeepingFactory.h>
 
 using namespace std;
 using namespace o2::raw;
