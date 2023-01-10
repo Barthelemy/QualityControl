@@ -27,6 +27,7 @@
 #include <Framework/InputRecord.h>
 #include <Framework/InputRecordWalker.h>
 #include <Headers/DataHeaderHelpers.h>
+#include <BookkeepingApi/BookkeepingClient.h>
 
 using namespace std;
 using namespace o2::raw;
@@ -93,6 +94,10 @@ void DaqTask::initialize(o2::framework::InitContext& /*ctx*/)
     mSubSystemsRdhSizes[system.first] = new TH1F(name.c_str(), title.c_str(), 128, 0, 2047);
     mSubSystemsRdhSizes[system.first]->SetCanExtend(TH1::kXaxis);
   }
+
+  // test bookkeeping
+
+
 }
 
 void DaqTask::startOfActivity(Activity& activity)
