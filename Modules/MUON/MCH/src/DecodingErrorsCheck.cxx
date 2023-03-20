@@ -18,6 +18,7 @@
 #include "MCHMappingSegContour/CathodeSegmentationContours.h"
 #include "MCH/DecodingErrorsCheck.h"
 #include "MCH/GlobalHistogram.h"
+#include "QualityControl/QcInfoLogger.h"
 
 // ROOT
 #include <fairlogger/Logger.h>

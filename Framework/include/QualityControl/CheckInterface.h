@@ -19,11 +19,8 @@
 
 #include "QualityControl/Quality.h"
 #include "QualityControl/UserCodeInterface.h"
-
-namespace o2::quality_control::core
-{
-class MonitorObject;
-}
+#include "QualityControl/MonitorObject.h"
+#include "QualityControl/DatabaseInterface.h"
 
 // todo: do not expose other namespaces in headers
 using namespace o2::quality_control::core;
@@ -69,15 +66,38 @@ class CheckInterface : public UserCodeInterface
   /// \author Barthelemy von Haller
   virtual std::string getAcceptedType();
 
-  bool isObjectCheckable(const std::shared_ptr<core::MonitorObject> mo);
+  bool isObjectCheckable(std::shared_ptr<core::MonitorObject> mo);
   bool isObjectCheckable(const core::MonitorObject* mo);
+
+  void setDatabase(std::shared_ptr<o2::quality_control::repository::DatabaseInterface> database) {
+    mDatabase = database;
+  }
+
+  template <typename T>
+  T* retrieveReference(const std::shared_ptr<MonitorObject>& object, std::map<std::string, std::string> const& metadata = {}, long timestamp = -1);
 
  protected:
   /// \brief Called each time mCustomParameters is updated.
   virtual void configure() override;
 
-  ClassDef(CheckInterface, 4)
+ private:
+  std::shared_ptr<o2::quality_control::repository::DatabaseInterface> mDatabase;
+
+  ClassDef(CheckInterface, 5)
 };
+
+
+template <typename T>
+T* CheckInterface::retrieveReference(const std::shared_ptr<MonitorObject>& object, std::map<std::string, std::string> const& selection_criteria,
+                                        long timestamp)
+{
+  // todo see if we want to explicitly have a parameter for run type
+  if (!mDatabase) {
+    throw std::runtime_error("Database must be set to the CheckInterface in order to use retrieveReference");
+  }
+
+  return mDatabase->retrieveMO(object->getPath(), "");
+}
 
 } // namespace o2::quality_control::checker
 

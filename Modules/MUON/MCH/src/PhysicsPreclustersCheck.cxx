@@ -18,6 +18,7 @@
 #include "MCHMappingSegContour/CathodeSegmentationContours.h"
 #include "MCH/GlobalHistogram.h"
 #include "MUONCommon/MergeableTH2Ratio.h"
+#include "QualityControl/QcInfoLogger.h"
 
 // ROOT
 #include <fairlogger/Logger.h>
@@ -28,7 +29,6 @@
 #include <TMath.h>
 #include <TPaveText.h>
 #include <iostream>
-#include <fstream>
 #include <string>
 
 using namespace std;

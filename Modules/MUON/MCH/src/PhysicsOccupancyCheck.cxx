@@ -16,6 +16,7 @@
 #include "MCHMappingInterface/Segmentation.h"
 #include "MCHMappingSegContour/CathodeSegmentationContours.h"
 #include "MCH/PhysicsOccupancyCheck.h"
+#include "QualityControl/QcInfoLogger.h"
 
 // ROOT
 #include <fairlogger/Logger.h>

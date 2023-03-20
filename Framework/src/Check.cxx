@@ -56,12 +56,13 @@ Check::Check(CheckConfig config)
 {
 }
 
-void Check::init()
+void Check::init(std::shared_ptr<o2::quality_control::repository::DatabaseInterface> database)
 {
   try {
     mCheckInterface = root_class_factory::create<CheckInterface>(mCheckConfig.moduleName, mCheckConfig.className);
     mCheckInterface->setName(mCheckConfig.name);
     mCheckInterface->setCustomParameters(mCheckConfig.customParameters);
+    mCheckInterface->setDatabase(database);
   } catch (...) {
     std::string diagnostic = boost::current_exception_diagnostic_information();
     ILOG(Fatal, Ops) << "Unexpected exception, diagnostic information follows: "

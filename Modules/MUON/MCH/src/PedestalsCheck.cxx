@@ -17,6 +17,7 @@
 #include "MCHMappingInterface/Segmentation.h"
 #include "MCHMappingSegContour/CathodeSegmentationContours.h"
 #include "MCH/PedestalsCheck.h"
+#include "QualityControl/QcInfoLogger.h"
 
 #include <fairlogger/Logger.h>
 #include <TH1.h>

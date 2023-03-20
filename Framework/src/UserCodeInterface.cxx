@@ -10,11 +10,12 @@
 // or submit itself to any jurisdiction.
 
 ///
-/// \file   CommonInterface.cxx
+/// \file   UserCodeInterface.cxx
 /// \author Barthelemy von Haller
 ///
 
 #include "QualityControl/UserCodeInterface.h"
+#include "QualityControl/QcInfoLogger.h"
 
 using namespace o2::ccdb;
 

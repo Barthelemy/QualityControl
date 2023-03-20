@@ -29,6 +29,11 @@ class Quality;
 struct CommonSpec;
 } // namespace o2::quality_control::core
 
+namespace o2::quality_control::repository
+{
+class DatabaseInterface;
+}
+
 namespace o2::quality_control::checker
 {
 class CheckInterface;
@@ -58,7 +63,7 @@ class Check
    * \brief Initialize the check state
    * Expected to run in the init phase of the FairDevice
    */
-  void init();
+  void init(std::shared_ptr<o2::quality_control::repository::DatabaseInterface> = nullptr);
 
   core::QualityObjectsType check(std::map<std::string, std::shared_ptr<o2::quality_control::core::MonitorObject>>& moMap);
 

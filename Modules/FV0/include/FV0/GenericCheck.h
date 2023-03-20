@@ -18,6 +18,7 @@
 #define QC_MODULE_FV0_FV0GENERICCHECK_H
 
 #include "QualityControl/CheckInterface.h"
+#include "QualityControl/QcInfoLogger.h"
 #include <DataFormatsQualityControl/FlagReasons.h>
 
 namespace o2::quality_control_modules::fv0

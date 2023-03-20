@@ -68,7 +68,7 @@ for ((nodeIndex = 0; nodeIndex < ${#HEAD_NODES[@]}; nodeIndex++)); do
 
     # or simply modify :
     #new_content=$(sed 's/http:\/\/localhost:8084/o2-ccdb.internal/g' $local_file)
-    new_content=$(cat $local_file | jq  '.qc.config.infologger.filterDiscardLevel |= "21"')
+    new_content=$(cat $local_file | jq  '.qc.config.consul.url |= "http://localhost:8500"')
     echo "new_content: $new_content"
     # upload (uncomment)
 #    consul kv put "$file" "$new_content"

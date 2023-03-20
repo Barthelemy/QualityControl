@@ -23,8 +23,6 @@
 #include <Rtypes.h>
 #include <CCDB/CcdbApi.h>
 
-#include "QualityControl/QcInfoLogger.h"
-
 namespace o2::quality_control::core
 {
 

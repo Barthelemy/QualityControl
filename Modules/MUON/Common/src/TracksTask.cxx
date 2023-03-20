@@ -15,6 +15,7 @@
 #include "QualityControl/ObjectsManager.h"
 #include <Framework/DataRefUtils.h>
 #include <Framework/InputRecord.h>
+#include "QualityControl/QcInfoLogger.h"
 #include <gsl/span>
 
 namespace o2::quality_control_modules::muon
