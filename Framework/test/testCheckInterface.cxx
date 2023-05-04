@@ -16,11 +16,8 @@
 
 #include "QualityControl/CheckInterface.h"
 
-#define BOOST_TEST_MODULE CheckInterface test
-#define BOOST_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
+#include <catch_amalgamated.hpp>
 
-#include <boost/test/unit_test.hpp>
 #include <TObjString.h>
 #include <string>
 #include "QualityControl/MonitorObject.h"
@@ -79,26 +76,26 @@ class TestCheck : public checker::CheckInterface
 } /* namespace test */
 } /* namespace o2::quality_control */
 
-BOOST_AUTO_TEST_CASE(test_invoke_all_methods)
+TEST_CASE("test_invoke_all_methods")
 {
   test::TestCheck testCheck;
 
   std::shared_ptr<MonitorObject> mo(new MonitorObject(new TObjString("A string"), "str", "class", "DET"));
   std::map<std::string, std::shared_ptr<MonitorObject>> moMap = { { "test", mo } };
 
-  BOOST_CHECK_EQUAL(testCheck.check(&moMap), Quality::Null);
+  REQUIRE(testCheck.check(&moMap) == Quality::Null);
 
   std::unordered_map<std::string, std::string> customParameters;
   customParameters["test"] = "A different string";
   testCheck.setCustomParameters(customParameters);
-  BOOST_CHECK_EQUAL(testCheck.check(&moMap), Quality::Bad);
+  REQUIRE(testCheck.check(&moMap) == Quality::Bad);
 
   customParameters["test"] = "A string";
   testCheck.setCustomParameters(customParameters);
-  BOOST_CHECK_EQUAL(testCheck.check(&moMap), Quality::Good);
+  REQUIRE(testCheck.check(&moMap) == Quality::Good);
 
   testCheck.beautify(mo);
-  BOOST_CHECK_EQUAL(reinterpret_cast<TObjString*>(mo->getObject())->String(), "A string is beautiful now");
+  REQUIRE(reinterpret_cast<TObjString*>(mo->getObject())->String() == "A string is beautiful now");
 
-  BOOST_CHECK_EQUAL(testCheck.getAcceptedType(), "TObjString");
+  REQUIRE(testCheck.getAcceptedType() == "TObjString");
 }

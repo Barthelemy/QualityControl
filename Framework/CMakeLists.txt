@@ -222,7 +222,7 @@ set(TEST_SRCS
     test/testInfrastructureGenerator.cxx
     test/testTaskInterface.cxx
     test/testTaskRunner.cxx
-    test/testCheckInterface.cxx
+#    test/testCheckInterface.cxx
     test/testAggregatorInterface.cxx
     test/testCheckRunner.cxx
     test/testAggregatorRunner.cxx
@@ -261,7 +261,7 @@ set(TEST_ARGS
     ""
     ""
     ""
-    ""
+#    ""
     ""
     ""
     ""
@@ -355,6 +355,13 @@ add_test(NAME batch_test COMMAND o2-qc-batch-test.sh)
 set_tests_properties(batch_test PROPERTIES ENVIRONMENT "JSON_DIR=${CMAKE_BINARY_DIR}/tests;UNIQUE_ID=${UNIQUE_ID}")
 set_property(TEST batch_test PROPERTY LABELS slow)
 set_property(TEST batch_test PROPERTY TIMEOUT 45)
+
+add_executable(testCheckInterface test/testCheckInterface.cxx)
+set_property(TARGET testCheckInterface
+  PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
+target_link_libraries(testCheckInterface
+  PRIVATE O2QualityControl O2::Framework O2::Catch2)
+add_test(NAME testCheckInterface COMMAND testCheckInterface)
 
 # ---- Install ----
 
