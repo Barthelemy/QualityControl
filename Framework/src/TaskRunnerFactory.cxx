@@ -27,7 +27,7 @@
 #include <Headers/DataHeader.h>
 #include <Framework/O2ControlLabels.h>
 #include <Framework/DataProcessorLabel.h>
-//#include <DetectorsBase/GRPGeomHelper.h>
+#include <DetectorsBase/GRPGeomHelper.h>
 #include <DataFormatsGlobalTracking/RecoContainer.h>
 #include <ReconstructionDataFormats/GlobalTrackID.h>
 
@@ -79,32 +79,32 @@ TaskRunnerConfig TaskRunnerFactory::extractConfig(const CommonSpec& globalConfig
   auto inputs = taskSpec.dataSource.inputs;
   inputs.emplace_back(createTimerInputSpec(globalConfig, multipleCycleDurations, taskSpec.detectorName, taskSpec.taskName));
 
-//  static std::unordered_map<std::string, o2::base::GRPGeomRequest::GeomRequest> const geomRequestFromString = {
-//    { "None", o2::base::GRPGeomRequest::GeomRequest::None },
-//    { "Aligned", o2::base::GRPGeomRequest::GeomRequest::Aligned },
-//    { "Ideal", o2::base::GRPGeomRequest::GeomRequest::Ideal },
-//    { "Alignments", o2::base::GRPGeomRequest::GeomRequest::Alignments }
-//  };
-//  const auto& grp = taskSpec.grpGeomRequestSpec;
-//  auto grpGeomRequest = grp.anyRequestEnabled()                                                               //
-//                          ? std::make_shared<o2::base::GRPGeomRequest>(                                       //
-//                              grp.askTime, grp.askGRPECS, grp.askGRPLHCIF, grp.askGRPMagField, grp.askMatLUT, //
-//                              geomRequestFromString.at(grp.geomRequest), inputs, grp.askOnceAllButField,      //
-//                              grp.needPropagatorD)                                                            //
-//                          : nullptr;
+  static std::unordered_map<std::string, o2::base::GRPGeomRequest::GeomRequest> const geomRequestFromString = {
+    { "None", o2::base::GRPGeomRequest::GeomRequest::None },
+    { "Aligned", o2::base::GRPGeomRequest::GeomRequest::Aligned },
+    { "Ideal", o2::base::GRPGeomRequest::GeomRequest::Ideal },
+    { "Alignments", o2::base::GRPGeomRequest::GeomRequest::Alignments }
+  };
+  const auto& grp = taskSpec.grpGeomRequestSpec;
+  auto grpGeomRequest = grp.anyRequestEnabled()                                                               //
+                          ? std::make_shared<o2::base::GRPGeomRequest>(                                       //
+                              grp.askTime, grp.askGRPECS, grp.askGRPLHCIF, grp.askGRPMagField, grp.askMatLUT, //
+                              geomRequestFromString.at(grp.geomRequest), inputs, grp.askOnceAllButField,      //
+                              grp.needPropagatorD)                                                            //
+                          : nullptr;
 
   const auto& dr = taskSpec.globalTrackingDataRequest;
   auto globalTrackingDataRequest = dr.requestTracks.empty() && dr.requestClusters.empty() ? nullptr : std::make_shared<o2::globaltracking::DataRequest>();
   if (globalTrackingDataRequest) {
-//    auto canProcessTracksMask = o2::dataformats::GlobalTrackID::getSourcesMask(dr.canProcessTracks);
-//    auto requestTracksMask = o2::dataformats::GlobalTrackID::getSourcesMask(dr.requestTracks);
-//    auto requestedTracksMask = canProcessTracksMask & requestTracksMask;
-//    globalTrackingDataRequest->requestTracks(requestedTracksMask, dr.mc);
+    auto canProcessTracksMask = o2::dataformats::GlobalTrackID::getSourcesMask(dr.canProcessTracks);
+    auto requestTracksMask = o2::dataformats::GlobalTrackID::getSourcesMask(dr.requestTracks);
+    auto requestedTracksMask = canProcessTracksMask & requestTracksMask;
+    globalTrackingDataRequest->requestTracks(requestedTracksMask, dr.mc);
 
-//    auto canProcessClustersMask = o2::dataformats::GlobalTrackID::getSourcesMask(dr.canProcessClusters);
-//    auto requestClustersMask = o2::dataformats::GlobalTrackID::getSourcesMask(dr.requestClusters);
-//    auto requestedClustersMask = canProcessClustersMask & requestClustersMask;
-//    globalTrackingDataRequest->requestTracks(requestedClustersMask, dr.mc);
+    auto canProcessClustersMask = o2::dataformats::GlobalTrackID::getSourcesMask(dr.canProcessClusters);
+    auto requestClustersMask = o2::dataformats::GlobalTrackID::getSourcesMask(dr.requestClusters);
+    auto requestedClustersMask = canProcessClustersMask & requestClustersMask;
+    globalTrackingDataRequest->requestTracks(requestedClustersMask, dr.mc);
     inputs.insert(inputs.begin(), globalTrackingDataRequest->inputs.begin(), globalTrackingDataRequest->inputs.end());
   }
 
@@ -129,8 +129,6 @@ TaskRunnerConfig TaskRunnerFactory::extractConfig(const CommonSpec& globalConfig
     { globalConfig.activityStart, globalConfig.activityEnd }
   };
 
-//  o2::globaltracking::RecoContainer rd;
-
   return {
     deviceName,
     taskSpec.taskName,
@@ -151,7 +149,9 @@ TaskRunnerConfig TaskRunnerFactory::extractConfig(const CommonSpec& globalConfig
     taskSpec.saveObjectsToFile,
     resetAfterCycles.value_or(taskSpec.resetAfterCycles),
     globalConfig.infologgerDiscardParameters,
-    fallbackActivity
+    fallbackActivity,
+    grpGeomRequest,
+    globalTrackingDataRequest
   };
 }
 
