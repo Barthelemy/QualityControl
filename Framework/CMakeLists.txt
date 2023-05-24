@@ -107,7 +107,6 @@ target_link_libraries(O2QualityControl
                              AliceO2::Monitoring
                              AliceO2::Configuration
                              AliceO2::Occ
-                             ROOT::Net
                              Boost::container
                              O2::Framework
                              O2::CCDB
@@ -115,10 +114,8 @@ target_link_libraries(O2QualityControl
                              O2::Mergers
                              O2::DataSampling
                              O2::DataFormatsQualityControl
-                             O2::DetectorsBase
-                             O2::GlobalTracking
+  O2::GlobalTracking
                       PRIVATE Boost::system
-                              ROOT::Gui
                               CURL::libcurl)
 
 add_root_dictionary(O2QualityControl

@@ -170,9 +170,9 @@ void TaskRunner::init(InitContext& iCtx)
     conf::ConfigurableParam::updateFromString(ConfigParamGlo::keyValues);
   }
   // load reco helpers
-  if (mTaskConfig.grpGeomRequest) {
-    GRPGeomHelper::instance().setRequest(mTaskConfig.grpGeomRequest);
-  }
+//  if (mTaskConfig.grpGeomRequest) {
+//    GRPGeomHelper::instance().setRequest(mTaskConfig.grpGeomRequest);
+//  }
 
   // init user's task
   mTask->setCcdbUrl(mTaskConfig.conditionUrl);
@@ -194,9 +194,9 @@ void TaskRunner::run(ProcessingContext& pCtx)
     startCycle();
   }
 
-  if (mTaskConfig.grpGeomRequest) {
-    GRPGeomHelper::instance().checkUpdates(pCtx);
-  }
+//  if (mTaskConfig.grpGeomRequest) {
+//    GRPGeomHelper::instance().checkUpdates(pCtx);
+//  }
 
   auto [dataReady, timerReady] = validateInputs(pCtx.inputs());
 
@@ -220,11 +220,11 @@ void TaskRunner::run(ProcessingContext& pCtx)
 
 void TaskRunner::finaliseCCDB(ConcreteDataMatcher& matcher, void* obj)
 {
-  if (mTaskConfig.grpGeomRequest) {
-    if (!GRPGeomHelper::instance().finaliseCCDB(matcher, obj)) {
-      ILOG(Warning, Devel) << "Could not update CCDB objects requested by GRPGeomHelper" << ENDM;
-    }
-  }
+//  if (mTaskConfig.grpGeomRequest) {
+//    if (!GRPGeomHelper::instance().finaliseCCDB(matcher, obj)) {
+//      ILOG(Warning, Devel) << "Could not update CCDB objects requested by GRPGeomHelper" << ENDM;
+//    }
+//  }
 }
 
 CompletionPolicy::CompletionOp TaskRunner::completionPolicyCallback(o2::framework::InputSpan const& inputs)
