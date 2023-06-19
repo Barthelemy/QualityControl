@@ -121,7 +121,7 @@ target_link_libraries(O2QualityControl
                              O2::DataSampling
                              O2::DataFormatsQualityControl
                              O2::DetectorsBase
-                             O2::GlobalTracking
+#                             O2::GlobalTracking
                       PRIVATE Boost::system
                               CURL::libcurl)
 

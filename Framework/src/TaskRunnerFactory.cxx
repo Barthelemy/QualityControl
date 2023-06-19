@@ -28,7 +28,7 @@
 #include <Framework/O2ControlLabels.h>
 #include <Framework/DataProcessorLabel.h>
 #include <DetectorsBase/GRPGeomHelper.h>
-#include <DataFormatsGlobalTracking/RecoContainer.h>
+//#include <DataFormatsGlobalTracking/RecoContainer.h>
 #include <ReconstructionDataFormats/GlobalTrackID.h>
 
 #include <Framework/TimerParamSpec.h>
@@ -94,19 +94,19 @@ TaskRunnerConfig TaskRunnerFactory::extractConfig(const CommonSpec& globalConfig
                           : nullptr;
 
   const auto& dr = taskSpec.globalTrackingDataRequest;
-  auto globalTrackingDataRequest = dr.requestTracks.empty() && dr.requestClusters.empty() ? nullptr : std::make_shared<o2::globaltracking::DataRequest>();
-  if (globalTrackingDataRequest) {
-    auto canProcessTracksMask = o2::dataformats::GlobalTrackID::getSourcesMask(dr.canProcessTracks);
-    auto requestTracksMask = o2::dataformats::GlobalTrackID::getSourcesMask(dr.requestTracks);
-    auto requestedTracksMask = canProcessTracksMask & requestTracksMask;
-    globalTrackingDataRequest->requestTracks(requestedTracksMask, dr.mc);
-
-    auto canProcessClustersMask = o2::dataformats::GlobalTrackID::getSourcesMask(dr.canProcessClusters);
-    auto requestClustersMask = o2::dataformats::GlobalTrackID::getSourcesMask(dr.requestClusters);
-    auto requestedClustersMask = canProcessClustersMask & requestClustersMask;
-    globalTrackingDataRequest->requestTracks(requestedClustersMask, dr.mc);
-    inputs.insert(inputs.begin(), globalTrackingDataRequest->inputs.begin(), globalTrackingDataRequest->inputs.end());
-  }
+//  auto globalTrackingDataRequest = dr.requestTracks.empty() && dr.requestClusters.empty() ? nullptr : std::make_shared<o2::globaltracking::DataRequest>();
+//  if (globalTrackingDataRequest) {
+//    auto canProcessTracksMask = o2::dataformats::GlobalTrackID::getSourcesMask(dr.canProcessTracks);
+//    auto requestTracksMask = o2::dataformats::GlobalTrackID::getSourcesMask(dr.requestTracks);
+//    auto requestedTracksMask = canProcessTracksMask & requestTracksMask;
+//    globalTrackingDataRequest->requestTracks(requestedTracksMask, dr.mc);
+//
+//    auto canProcessClustersMask = o2::dataformats::GlobalTrackID::getSourcesMask(dr.canProcessClusters);
+//    auto requestClustersMask = o2::dataformats::GlobalTrackID::getSourcesMask(dr.requestClusters);
+//    auto requestedClustersMask = canProcessClustersMask & requestClustersMask;
+//    globalTrackingDataRequest->requestTracks(requestedClustersMask, dr.mc);
+//    inputs.insert(inputs.begin(), globalTrackingDataRequest->inputs.begin(), globalTrackingDataRequest->inputs.end());
+//  }
 
   OutputSpec monitorObjectsSpec{ { "mo" },
                                  TaskRunner::createTaskDataOrigin(taskSpec.detectorName),
@@ -129,7 +129,7 @@ TaskRunnerConfig TaskRunnerFactory::extractConfig(const CommonSpec& globalConfig
     { globalConfig.activityStart, globalConfig.activityEnd }
   };
 
-  o2::globaltracking::RecoContainer rd;
+//  o2::globaltracking::RecoContainer rd;
 
   return {
     deviceName,
@@ -152,8 +152,8 @@ TaskRunnerConfig TaskRunnerFactory::extractConfig(const CommonSpec& globalConfig
     resetAfterCycles.value_or(taskSpec.resetAfterCycles),
     globalConfig.infologgerDiscardParameters,
     fallbackActivity,
-    grpGeomRequest,
-    globalTrackingDataRequest
+    grpGeomRequest/*,
+    globalTrackingDataRequest*/
   };
 }
 
