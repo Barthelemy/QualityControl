@@ -39,6 +39,7 @@ class UserCodeInterface
   virtual ~UserCodeInterface() = default;
 
   void setCustomParameters(const CustomParameters& parameters);
+  void setActivityInCustomParameters(const Activity& activity);
 
   /// \brief Configure the object.
   ///

@@ -267,6 +267,7 @@ void Check::setActivity(std::shared_ptr<core::Activity> activity)
 {
   if (mCheckInterface) {
     mCheckInterface->setActivity(std::move(activity));
+    mCheckInterface->setActivityInCustomParameters(*activity);
   } else {
     throw std::runtime_error("Trying to set Activity on an empty CheckInterface '" + mCheckConfig.name + "'");
   }

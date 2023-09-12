@@ -36,4 +36,9 @@ const std::string& UserCodeInterface::getName() const { return mName; }
 
 void UserCodeInterface::setName(const std::string& name) { mName = name; }
 
+void UserCodeInterface::setActivityInCustomParameters(const Activity& activity)
+{
+  mCustomParameters.setActivity(activity);
+}
+
 } // namespace o2::quality_control::core

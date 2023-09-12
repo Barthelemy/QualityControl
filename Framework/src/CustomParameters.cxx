@@ -52,6 +52,21 @@ const std::unordered_map<std::string, std::string>& CustomParameters::getAllDefa
   return getAllForRunBeam("default", "default");
 }
 
+std::string CustomParameters::getRunTypeString(const Activity& activity) const
+{
+  // Get the proper parameter for the given activity
+  const int runType = activity.mType; // get the type for this run
+  // convert it to a string (via a string_view as this is what we get from O2)
+  const std::string_view runTypeStringView = o2::parameters::GRPECS::RunTypeNames[runType];
+  const std::string runTypeString{ runTypeStringView };
+}
+
+std::string CustomParameters::at(const std::string& key) const
+{
+  // TODO make sure we get "default" if they are not set
+  return mCustomParameters.at(getRunTypeString(mActivity)).at(mActivity.mBeamType).at(key);
+}
+
 std::string CustomParameters::at(const std::string& key, const std::string& runType, const std::string& beamType) const
 {
   return mCustomParameters.at(runType).at(beamType).at(key);
@@ -66,15 +81,15 @@ std::optional<std::string> CustomParameters::atOptional(const std::string& key, 
   }
 }
 
+std::optional<std::string> CustomParameters::atOptional(const std::string& key) const
+{
+  return atOptional(key, mActivity);
+}
+
 std::optional<std::string> CustomParameters::atOptional(const std::string& key, const Activity& activity) const
 {
-  // Get the proper parameter for the given activity
-  const int runType = activity.mType; // get the type for this run
-  // convert it to a string (via a string_view as this is what we get from O2)
-  const std::string_view runTypeStringView = o2::parameters::GRPECS::RunTypeNames[runType];
-  const std::string runTypeString{ runTypeStringView };
-  // get the param
-  return atOptional(key, runTypeString, activity.mBeamType);
+  // TODO make sure we get "default" if they are not set
+  return atOptional(key, getRunTypeString(activity), activity.mBeamType);
 }
 
 std::string CustomParameters::atOrDefaultValue(const std::string& key, std::string defaultValue, const std::string& runType, const std::string& beamType)
@@ -110,13 +125,13 @@ int CustomParameters::count(const std::string& key, const std::string& runType, 
   return 1;
 }
 
-std::unordered_map<std::string, std::string>::const_iterator CustomParameters::find(const std::string& key, const std::string& runType, const std::string& beamType) const
+std::unordered_map<std::string, std::string>::const_iterator CustomParameters::find(const std::string& key) const
 {
-  auto subTreeRunType = mCustomParameters.find(runType);
+  auto subTreeRunType = mCustomParameters.find(getRunTypeString(mActivity));
   if (subTreeRunType == mCustomParameters.end()) {
     return end();
   }
-  auto subTreeBeamType = subTreeRunType->second.find(beamType);
+  auto subTreeBeamType = subTreeRunType->second.find(mActivity.mBeamType);
   if (subTreeBeamType == subTreeRunType->second.end()) {
     return end();
   }
@@ -143,6 +158,16 @@ std::string& CustomParameters::operator[](const std::string& key)
     set(key, "");
   }
   return mCustomParameters.at("default").at("default").at(key);
+}
+
+const Activity& CustomParameters::getActivity() const
+{
+  return mActivity;
+}
+
+void CustomParameters::setActivity(const Activity& mActivity)
+{
+  CustomParameters::mActivity = mActivity;
 }
 
 } // namespace o2::quality_control::core

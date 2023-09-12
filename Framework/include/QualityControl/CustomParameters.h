@@ -75,7 +75,15 @@ class CustomParameters
    * @return the value for the given key, runType and beamType.
    * @throw std::out_of_range if no key-value pair corresponds to this key and to these beamType and runType
    */
-  std::string at(const std::string& key, const std::string& runType = "default", const std::string& beamType = "default") const;
+  std::string at(const std::string& key, const std::string& runType, const std::string& beamType) const;
+
+  /**
+   * Return the value for the given key, runType and beamType.
+   * @param key
+   * @return the value for the given key corresponding to mActivity's beam and run type.
+   * @throw std::out_of_range if no key-value pair corresponds to this key
+   */
+  std::string at(const std::string& key) const;
 
   /**
    * Return the optional value for the given key, runType and beamType (the two latter optional).
@@ -84,7 +92,7 @@ class CustomParameters
    * @param beamType
    * @return an optional with the value for the given key, runType and beamType or empty if not found.
    */
-  std::optional<std::string> atOptional(const std::string& key, const std::string& runType = "default", const std::string& beamType = "default") const;
+  std::optional<std::string> atOptional(const std::string& key) const;
 
   /**
    * Return the optional value for the given key in the specified activity.
@@ -93,6 +101,8 @@ class CustomParameters
    * @return an optional with the value for the given key and for the given activity.
    */
   std::optional<std::string> atOptional(const std::string& key, const Activity& activity) const;
+
+  std::optional<std::string> atOptional(const std::string& key, const std::string& runType, const std::string& beamType) const;
 
   /**
    * Return the value for the given key, runType and beamType (the two latter optional). If it does not exist, returns the default value if provided or an empty string.
@@ -125,7 +135,7 @@ class CustomParameters
    * @param beamType
    * @return the item or end()
    */
-  std::unordered_map<std::string, std::string>::const_iterator find(const std::string& key, const std::string& runType = "default", const std::string& beamType = "default") const;
+  std::unordered_map<std::string, std::string>::const_iterator find(const std::string& key) const;
 
   std::unordered_map<std::string, std::string>::const_iterator end() const;
 
@@ -149,8 +159,14 @@ class CustomParameters
    */
   friend std::ostream& operator<<(std::ostream& out, const CustomParameters& customParameters);
 
+  const Activity& getActivity() const;
+  void setActivity(const Activity& mActivity);
+
  private:
+  std::string getRunTypeString(const Activity& activity) const;
+
   CustomParametersType mCustomParameters;
+  Activity mActivity;
 };
 
 } // namespace o2::quality_control::core
