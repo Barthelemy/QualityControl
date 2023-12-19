@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(test_at_optional_activity)
 {
   Activity activity;
   activity.mBeamType = "PROTON-PROTON";
-  activity.mType = 1;
+  activity.mType = "PHYSICS";
 
   CustomParameters cp;
   cp.set("aaa", "AAA");
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE(test_at_optional_activity)
 
   Activity activity2;
   activity.mBeamType = "Pb-Pb";
-  activity.mType = 1;
+  activity.mType = "PHYSICS";
   BOOST_CHECK_EQUAL(cp.atOptional("aaa", activity).value(), "DDD");
 }
 
