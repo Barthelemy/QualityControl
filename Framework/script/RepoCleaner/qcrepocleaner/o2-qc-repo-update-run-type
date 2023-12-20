@@ -5,7 +5,7 @@ import argparse
 import dryable
 from qcrepocleaner.Ccdb import Ccdb
 from qcrepocleaner.binUtils import prepare_main_logger
-import re
+import csv
 
 
 def parse_args():
@@ -19,6 +19,9 @@ def parse_args():
                         help='Dry run, no actual deletion nor modification to the CCDB.')
     parser.add_argument('--path', dest='path', action='store', default="",
                         help='Origin path without initial slash and without .* at the end (e.g. qc/TST/MO/Bob).', required=True)
+    parser.add_argument('--runs-csv-file', dest='runs_file', action='store', help='A csv file with a header and the '
+                                                       'columns `RunNumber` and `RunType`',
+                        required=True)
     parser.add_argument('--one-by-one', action='store_true', help='Ask confirmation for each deletion')
     args = parser.parse_args()
     dryable.set(args.dry_run)
@@ -28,6 +31,17 @@ def parse_args():
 
 def run(args):
     ccdb = Ccdb(args.url)
+
+    # TODO: get a map with run number -> run type
+    logging.info(f"Read the file {args.runs_file}")
+    file = open(args.runs_file)
+    csvreader = csv.DictReader(file)
+    runs_mapping = {}
+    for row in csvreader:
+        run_number = row["RunNumber"]
+        run_type = row["RunType"]
+        runs_mapping[run_number] = run_type
+        # logging.debug(f"Added {run_number}->{run_type}")
 
     nb_updated = 0
     # we have to make sure we take all objects in the subfolders --> we add `/.*` at the end
@@ -45,21 +59,18 @@ def run(args):
     if answer.lower() not in ["y", "yes"]:
         exit(0)
 
-    # TODO: get a map with run number -> run type
-    runs_mapping = {}
-
     for v in versions:
         run_number = v.metadata.get("RunNumber")
         if run_number is None:
-            logging.warning(f"Could not find metadata RunNumber for version {v}")
+            logging.warning(f"Could not find metadata RunNumber for version {v}, skipping")
             continue
 
         run_type = runs_mapping.get(run_number)
         if run_type is None:
-            logging.warning(f"Could not find run type for run number {run_number}")
-            continue
+            logging.warning(f"Could not find run type for run number {run_number}, using \"NONE\"")
+            run_type = "NONE"
 
-        metadata = {"RunType", run_type}
+        metadata = {"RunType": run_type}
 
         logging.debug(f"Ready to update {v} with run type {run_type}")
         if args.one_by_one:
@@ -72,10 +83,12 @@ def run(args):
             else:
                 logging.error("   wrong input, skipping")
         else:
+            logging.info(f"v : {v}")
+            logging.info(f"metadata : {metadata}")
             ccdb.updateMetadata(v, metadata)
             nb_updated += 1
 
-    logging.info(f"Updated items: {nb_moved}")
+    logging.info(f"Updated items: {nb_updated}")
 
 # ****************
 # We start here !
