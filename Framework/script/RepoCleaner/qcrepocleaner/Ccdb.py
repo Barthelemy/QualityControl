@@ -141,7 +141,7 @@ class Ccdb:
             exclusion_pattern = re.compile(exclude_path)
             
         for object_path in json_result['objects']:
-            if exclude_path and exclusion_pattern.match(object_path) is not None:
+            if exclude_path != "" and exclusion_pattern.match(object_path['path']) is not None:
                 continue 
             version = ObjectVersion(path=object_path['path'], uuid=object_path['id'], validFrom=object_path['validFrom'], validTo=object_path['validUntil'], metadata=object_path, createdAt=object_path['Created'])
             versions.insert(0, version)
