@@ -2,6 +2,8 @@
 
 import logging
 import argparse
+from typing import List
+
 import dryable
 import time
 from qcrepocleaner.Ccdb import Ccdb, ObjectVersion
@@ -22,9 +24,10 @@ def parseArgs():
                         help='Dry run, no actual deletion nor modification to the CCDB.')
     parser.add_argument('--path', dest='path', action='store', default="",
                         help='Clean this path (without initial slash and without .* at the end, e.g. qc/TST/MO/Bob)', required=True)
+    parser.add_argument('--exclude_path', dest='exclude_path', action='store', default="",
+                        help='A path to exclude. Add `.*` at the end to match sub-folders.', required=False)
     parser.add_argument('--runs-csv-file', dest='runs_file', action='store', help='A csv file with a header and the '
-                                                                                  'column `runNumber` contains the run',
-                        required=True)
+                                      'column `runNumber` contains the run', required=True)
     parser.add_argument('--one-by-one', action='store_true', help='Ask confirmation for each deletion')
     parser.add_argument('--print-list', action='store_true', help='Only print the list of objects that would be deleted')
     parser.add_argument('--yes', action='store_true', help='Answers yes to all. You should really not use that.')
@@ -47,7 +50,7 @@ def run(args):
         run_number = row["runNumber"]
         logging.info(f"Run : {run_number}")
 
-        versions = ccdb.getVersionsList(args.path + "/.*", "", "", run_number)
+        versions = ccdb.getVersionsList(args.path + "/.*", "", "", run_number, args.exclude_path)
         logging.info("Here are the objects that are going to be deleted: ")
         for v in versions:
             logging.info(v)

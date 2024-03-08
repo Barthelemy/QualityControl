@@ -1,11 +1,11 @@
 import datetime
 import logging
-import sys
 import traceback
 from typing import List, Dict
 
 import dryable
 import requests
+import re
 
 
 logger = logging  # default logger
@@ -106,15 +106,15 @@ class Ccdb:
             raise
         return json['objects']
 
-    def getVersionsList(self, object_path: str, from_ts: str = "", to_ts: str = "", run: int = -1) \
-            -> List[ObjectVersion]:
+    def getVersionsList(self, object_path: str, from_ts: str = "", to_ts: str = "", run: int = -1,
+                        exclude_path: str = "") -> List[ObjectVersion]:
         '''
         Get the list of all versions for a given object sorted by CreatedAt.
-        :param run: only objects for this run (based on metadata)
         :param object_path: Path to the object for which we want the list of versions.
         :param from_ts: only objects created at or after this timestamp
         :param to_ts: only objects created before or at this timestamp
-        :param sort: which field to sort with
+        :param run: only objects for this run (based on metadata)
+        :param exclude_path: a path to exclude. Add `.*` at the end to match to include sub-folders.
         :return A list of ObjectVersion.
         '''
         url_browse_all_versions = self.url + '/browse/' + object_path
@@ -135,7 +135,14 @@ class Ccdb:
             print(f"Error while reading json for object {object_path} from CCDB: {e}")
             exit(1)
         versions = []
+        # exclusion pattern
+        exclusion_pattern = None
+        if exclude_path != "":
+            exclusion_pattern = re.compile(exclude_path)
+            
         for object_path in json_result['objects']:
+            if exclude_path and exclusion_pattern.match(object_path) is not None:
+                continue 
             version = ObjectVersion(path=object_path['path'], uuid=object_path['id'], validFrom=object_path['validFrom'], validTo=object_path['validUntil'], metadata=object_path, createdAt=object_path['Created'])
             versions.insert(0, version)
         versions.sort(key=lambda v: v.createdAt, reverse=False)
