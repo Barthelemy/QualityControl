@@ -50,8 +50,9 @@ def run(args):
         run_number = row["runNumber"]
         logging.info(f"Run : {run_number}")
 
+        start = time.time()
         versions = ccdb.getVersionsList(args.path + "/.*", "", "", run_number, args.exclude_path)
-        logging.info("Here are the objects that are going to be deleted: ")
+        logging.info(f"Here are the objects that are going to be deleted ({time.time() - start}): ")
         for v in versions:
             logging.info(v)
         logging.info(f"Number of items: {len(versions)}")
@@ -66,6 +67,7 @@ def run(args):
             if answer.lower() not in ["y", "yes"]:
                 exit(0)
 
+        start = time.time()
         for v in versions:
             logging.info(f"Ready to delete {v}")
             if args.one_by_one:
@@ -81,7 +83,7 @@ def run(args):
                 ccdb.deleteVersion(v)
                 nb_deleted += 1
 
-        logging.info(f"Deleted items: {nb_deleted}")
+        logging.info(f"Deleted items ({time.time() - start}): {nb_deleted}")
         total_deleted += nb_deleted
 
     logging.info(f"Total planned to be deleted: {total_planned}")
