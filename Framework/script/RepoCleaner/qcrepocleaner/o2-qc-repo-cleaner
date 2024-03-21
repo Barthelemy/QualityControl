@@ -77,7 +77,7 @@ class Rule:
             .format(self, self, self, self, self, self, self)
 
 
-def parseArgs():
+def parse_args():
     """Parse the arguments passed to the script."""
     logging.info("Parsing arguments")
     parser = argparse.ArgumentParser(description='Clean the QC database.')
@@ -107,7 +107,7 @@ def parseArgs():
     return args
 
 
-def parseConfig(config_file_path):
+def parse_config(config_file_path):
     """
     Read the config file and prepare a list of rules.
 
@@ -123,7 +123,7 @@ def parseConfig(config_file_path):
 
     # also add something to the important logs file
     message = datetime.today().strftime('%Y-%m-%d - %H:%M:%S')
-    storeCrucialLog("\n" + message + " - Start of the cleaner")
+    store_crucial_logs("\n" + message + " - Start of the cleaner")
 
     rules = []
     logging.debug("Rules found in the config file:")
@@ -146,14 +146,14 @@ def parseConfig(config_file_path):
                     all_params=rule_yaml)
         rules.append(rule)
         logging.debug(f"   * {rule}")
-        storeCrucialLog(f"   * {rule}")
+        store_crucial_logs(f"   * {rule}")
 
     ccdb_url = config_content["Ccdb"]["Url"]
 
     return {'rules': rules, 'ccdb_url': ccdb_url}
 
 
-def downloadConfigFromGit():
+def download_config_from_git():
     """
     Download a config file from git.
     :return: the path to the config file
@@ -170,7 +170,7 @@ def downloadConfigFromGit():
     return path
 
 
-def downloadConfigFromConsul(consul_url, consul_port):
+def download_config_from_consul(consul_url, consul_port):
     """
     Download a config file from consul.
     :return: the path to the config file
@@ -189,7 +189,7 @@ def downloadConfigFromConsul(consul_url, consul_port):
     return path
 
 
-def findMatchingRules(rules, object_path):
+def find_matching_rules(rules, object_path):
     """Return a list of all matching rules for the given path."""
 
     logging.debug(f"findMatchingRules for {object_path}")
@@ -213,7 +213,7 @@ filepath = tempfile.gettempdir() + "/repoCleaner.txt"
 currentTimeStamp = int(time.time() * 1000)
 
 
-def getTimestampLastExecution():
+def get_timestamp_last_execution():
     """
     Returns the timestamp of the last execution.
     It is stored in a file in $TMP/repoCleaner.txt.
@@ -230,20 +230,20 @@ def getTimestampLastExecution():
     return timestamp
 
 
-def storeSavedTimestamp():
+def store_saved_timestamp():
     """
     Store the timestamp we saved at the beginning of the execution of this script.
     """
     try:
         f = open(filepath, "w+")
+        f.write(str(currentTimeStamp))
+        logging.info(f"Stored timestamp {currentTimeStamp} in {filepath}")
+        f.close()
     except IOError:
         logging.error(f"Could not write the saved timestamp to {filepath}")
-    f.write(str(currentTimeStamp))
-    logging.info(f"Stored timestamp {currentTimeStamp} in {filepath}")
-    f.close()
 
 
-def storeMonitoringMetrics(success, duration):
+def store_monitoring_metrics(success, duration):
     """
     Store the status and the duration in influxdb via telegraf for monitoring purpose.
     """
@@ -258,7 +258,7 @@ def storeMonitoringMetrics(success, duration):
         logging.warning(f"File {socket_file} does not exist, no monitoring metrics stored.")
 
 
-def storeCrucialLog(message):
+def store_crucial_logs(message):
     """
     Store few but very important messages to the file ~/repocleaner_logs.txt
     :param message:
@@ -309,10 +309,10 @@ def read_config(args):
     path = args.config
     if args.config_consul:
         items = args.config_consul.split(':')
-        path = downloadConfigFromConsul(items[0], items[1])
+        path = download_config_from_consul(items[0], items[1])
     elif args.config_git:
-        path = downloadConfigFromGit()
-    config = parseConfig(path)
+        path = download_config_from_git()
+    config = parse_config(path)
     rules: List[Rule] = config['rules']
     ccdb_url = config['ccdb_url']
     return ccdb_url, rules
@@ -333,7 +333,7 @@ def process_object(object_path, rules, ccdb, args):
     logger.info(f"Processing {object_path}")
 
     # Take the first matching rule, if any
-    rules = findMatchingRules(rules, object_path)
+    rules = find_matching_rules(rules, object_path)
     logger.debug(f"Found {len(rules)} rules")
 
     if len(rules) == 0:
@@ -352,10 +352,9 @@ def process_object(object_path, rules, ccdb, args):
         try:
             stats = module.process(ccdb, object_path, int(rule.delay),  rule.from_timestamp, rule.to_timestamp,
                                    rule.extra_params)
+            logger.info(f"{rule.policy} applied on {object_path}: {stats}")
         except Exception as e:
             logger.error(f"processing error:  {e}")
-
-        logger.info(f"{rule.policy} applied on {object_path}: {stats}")
 
         if not rule.continue_with_next_rule:
             break
@@ -367,14 +366,12 @@ def run(args, ccdb_url, rules):
     ccdb = Ccdb(ccdb_url)
     ccdb.logger = logging.getLogger
     ccdb.set_adjustable_eov = args.set_adjustableEOV
-    logging.info(f"ccdb.set_adjustable_eov: {ccdb.set_adjustable_eov}")
-    paths = ccdb.getObjectsList(getTimestampLastExecution(), args.only_path, args.only_path_no_subdir)
+    paths = ccdb.getObjectsList(get_timestamp_last_execution(), args.only_path, args.only_path_no_subdir)
     if args.only_path != '':
         paths = [item for item in paths if item is not None and item.startswith(args.only_path)]
     logging.debug(paths)
-    # For each object call the first matching rule
-    logging.info("Loop through the objects and apply first matching rule.")
 
+    # process each object, dispatch them to workers
     logging.info(f"workers: {args.workers}")
     pool = mp.Pool(processes=int(args.workers))
     [pool.apply_async(process_object_wrapped, args=(object_path, rules, ccdb, args)) for object_path in paths]
@@ -383,20 +380,22 @@ def run(args, ccdb_url, rules):
 
     logging.info(f" *** DONE *** (total deleted: {ccdb.counter_deleted}, total updated: {ccdb.counter_validity_updated})")
     message = datetime.today().strftime('%Y-%m-%d-%H:%M:%S')
-    storeCrucialLog(message + f" - End of the cleaner (total deleted: {ccdb.counter_deleted}, total updated: {ccdb.counter_validity_updated})")
+    store_crucial_logs(message + f" - End of the cleaner (total deleted: {ccdb.counter_deleted}, total updated: {ccdb.counter_validity_updated})")
     if not args.dry_run:
-        storeSavedTimestamp()
+        store_saved_timestamp()
+
 
 # ****************
 # We start here !
 # ****************
+
 
 def main():
     start_time = time.time()
     prepare_main_logger()
 
     # Parse arguments
-    args = parseArgs()
+    args = parse_args()
     logging.getLogger().setLevel(int(args.log_level))
 
     try:
@@ -406,10 +405,10 @@ def main():
     except AlreadyRunningError:
         print('Already running. Exiting.')
     except:
-        storeMonitoringMetrics(success=0, duration=time.time()-start_time)
+        store_monitoring_metrics(success=0, duration=time.time() - start_time)
         raise
 
-    storeMonitoringMetrics(success=1, duration=time.time()-start_time)
+    store_monitoring_metrics(success=1, duration=time.time() - start_time)
 
 
 if __name__ == "__main__":  # to be able to run the test code above when not imported.
