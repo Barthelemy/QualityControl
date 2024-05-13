@@ -73,6 +73,7 @@ std::string SkeletonCheck::getAcceptedType() { return "TH1"; }
 
 void SkeletonCheck::beautify(std::shared_ptr<MonitorObject> mo, Quality checkResult)
 {
+  ILOG(Info, Devel) << "Beautify: " << mo->getPath() << ENDM;
   if (mo->getName() == "example") {
     auto* h = dynamic_cast<TH1F*>(mo->getObject());
 

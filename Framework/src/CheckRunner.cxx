@@ -143,7 +143,9 @@ CheckRunner::CheckRunner(CheckRunnerConfig checkRunnerConfig, const std::vector<
     mTotalNumberMOStored(0),
     mTotalQOSent(0)
 {
+  ILOG(Info, Devel) << "IN CHECKRUNNER : " << ENDM;
   for (auto& checkConfig : checkConfigs) {
+    ILOG(Info, Devel) << "    checkConfig.name : " << checkConfig.name << ENDM;
     mChecks.emplace(checkConfig.name, checkConfig);
   }
 }
