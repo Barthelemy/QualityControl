@@ -69,9 +69,17 @@ void Check::init()
 {
   try {
     mCheckInterface = root_class_factory::create<CheckInterface>(mCheckConfig.moduleName, mCheckConfig.className);
+    cout << "1" << endl;
     mCheckInterface->setName(mCheckConfig.name);
+    cout << "2" << endl;
+    cout << "b4" << endl;
+    mCheckInterface->setDatabase(mCheckConfig.database);
+    cout << "after" << endl;
     mCheckInterface->setCustomParameters(mCheckConfig.customParameters);
+    cout << "3" << endl;
+
     mCheckInterface->setCcdbUrl(mCheckConfig.conditionUrl);
+
   } catch (...) {
     std::string diagnostic = boost::current_exception_diagnostic_information();
     ILOG(Fatal, Ops) << "Unexpected exception, diagnostic information follows: "
@@ -261,7 +269,8 @@ CheckConfig Check::extractConfig(const CommonSpec& commonSpec, const CheckSpec& 
     allowBeautify,
     std::move(inputs),
     createOutputSpec(checkSpec.detectorName, checkSpec.checkName),
-    commonSpec.conditionDBUrl
+    commonSpec.conditionDBUrl,
+    commonSpec.database
   };
 }
 

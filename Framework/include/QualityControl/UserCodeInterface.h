@@ -23,6 +23,9 @@
 
 #include "QualityControl/ConditionAccess.h"
 #include "QualityControl/CustomParameters.h"
+#include "QualityControl/DatabaseInterface.h"
+#include "QualityControl/DatabaseFactory.h"
+#include <DataFormatsCTP/Scalers.h>
 
 namespace o2::quality_control::core
 {
@@ -49,11 +52,21 @@ class UserCodeInterface : public ConditionAccess
   const std::string& getName() const;
   void setName(const std::string& name);
 
+// void setDatabase(std::shared_ptr<o2::quality_control::repository::DatabaseInterface> database);
+  void setDatabase(std::unordered_map<std::string, std::string> dbConfig);
+
  protected:
+  void regularCallback(int intervalMinutes);
+  void updateScalers();
+  void enableCtpScalers();
+  std::shared_ptr<ctp::CTPRunScalers> getScalers(long timestamp); // TODO do we really want to pollute this interface with this ctp stuff ? perhaps we should have another class that the user interacts with
+
   CustomParameters mCustomParameters;
   std::string mName;
+  std::shared_ptr<o2::quality_control::repository::DatabaseInterface> mDatabase;
+  std::shared_ptr<ctp::CTPRunScalers> mScalers;
 
-  ClassDef(UserCodeInterface, 3)
+  ClassDef(UserCodeInterface, 4)
 };
 
 } // namespace o2::quality_control::core

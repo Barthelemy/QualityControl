@@ -50,6 +50,8 @@ void SkeletonTask::initialize(o2::framework::InitContext& /*ctx*/)
     // Here we don't care that the metadata was not added and just log the event.
     ILOG(Warning, Support) << "Metadata could not be added to " << mHistogramA->GetName() << ENDM;
   }
+
+  enableCtpScalers();
 }
 
 void SkeletonTask::startOfActivity(const Activity& activity)

@@ -37,6 +37,8 @@ void SkeletonCheck::configure()
 
   // Example of retrieving a custom parameter
   std::string parameter = mCustomParameters.atOrDefaultValue("myOwnKey1", "default");
+
+  enableCtpScalers();
 }
 
 Quality SkeletonCheck::check(std::map<std::string, std::shared_ptr<MonitorObject>>* moMap)
