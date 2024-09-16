@@ -37,11 +37,21 @@ void UserCodeInterface::setName(const std::string& name) {
   mName = name;
 }
 
-void UserCodeInterface::enableCtpScalers()
+void UserCodeInterface::enableCtpScalers(size_t runNumber, std::string ccdbUrl)
 {
   // TODO bail if we are in async
 
   // TODO get the interval from config
+
+  // TODO we need the CCDB url here, how ?
+
+  auto& ccdbManager = o2::ccdb::BasicCCDBManager::instance();
+  ccdbManager.setURL("<CCDB URL>");
+
+  mCtpFetcher.setupRun(runNumber, ccdbManager, getCurrentTimestamp(), false);
+
+  // switch
+//  ccdbManager.setURL("http://ali-qcdb-gpn.cern.ch:8083/");
 
   int intervalMinutes = 1;
 
@@ -63,6 +73,7 @@ void UserCodeInterface::regularCallback(int intervalMinutes) {
 }
 
 void UserCodeInterface::updateScalers() {
+  // TODO : WHY DO WE EVEN RETRIEVE REGULARLY AND NOT WHEN THE USER ASKS FOR IT ? AND IF IT IS LESS THAN A CERTAIN TIME WE TAKE THE LAST VALUE
   ILOG(Info, Devel) << " *-*-*-*-*- Update scalers " << ENDM;
 
   if(! mDatabase) {
@@ -74,7 +85,8 @@ void UserCodeInterface::updateScalers() {
 
   std::map<std::string, std::string> meta;
   void* rawResult = mDatabase->retrieveAny(typeid(o2::ctp::CTPRunScalers), "qc/CTP/Scalers", meta); // TODO make sure we get the last one.
-  mScalers = std::shared_ptr< o2::ctp::CTPRunScalers >(static_cast<o2::ctp::CTPRunScalers*>(rawResult));
+  o2::ctp::CTPRunScalers* ctpScalers = static_cast<o2::ctp::CTPRunScalers*>(rawResult);
+  mCtpFetcher.updateScalers(*ctpScalers);
 }
 
 using namespace std;
@@ -100,9 +112,9 @@ void UserCodeInterface::setDatabase(std::unordered_map<std::string, std::string>
   ILOG(Info, Devel) << "Database that is going to be used > Implementation : " << dbConfig.at("implementation") << " / Host : " << dbConfig.at("host") << ENDM;
 }
 
-std::shared_ptr<ctp::CTPRunScalers> UserCodeInterface::getScalers(long timestamp)
+double UserCodeInterface::getScalersValue(long timestamp, std::string sourceName)
 {
-  return mScalers;
+  return mCtpFetcher.fetchNoPuCorr(&ccdbManager, getCurrentTimestamp(), runNumber, sourceName);
 }
 
 } // namespace o2::quality_control::core

@@ -55,18 +55,24 @@ class UserCodeInterface : public ConditionAccess
 // void setDatabase(std::shared_ptr<o2::quality_control::repository::DatabaseInterface> database);
   void setDatabase(std::unordered_map<std::string, std::string> dbConfig);
 
- protected:
+ private:
+  /// \brief Just the callback for the thread for the scalers retrieval.
   void regularCallback(int intervalMinutes);
+  /// \brief Retrieve fresh scalers from the QCDB
   void updateScalers();
-  void enableCtpScalers();
-  std::shared_ptr<ctp::CTPRunScalers> getScalers(long timestamp); // TODO do we really want to pollute this interface with this ctp stuff ? perhaps we should have another class that the user interacts with
+  CtpRateFetcher mCtpFetcher;
+
+ protected:
+  /// \brief Call it to enable the retrieval of CTP scalers and use `getScalers` later
+  void enableCtpScalers(size_t runNumber, std::string ccdbUrl);
+  /// \brief Get the scalers's value for the given source
+  double getScalersValue(long timestamp, std::string sourceName);
 
   CustomParameters mCustomParameters;
   std::string mName;
   std::shared_ptr<o2::quality_control::repository::DatabaseInterface> mDatabase;
-  std::shared_ptr<ctp::CTPRunScalers> mScalers;
 
-  ClassDef(UserCodeInterface, 4)
+  ClassDef(UserCodeInterface, 5)
 };
 
 } // namespace o2::quality_control::core
