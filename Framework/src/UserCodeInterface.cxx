@@ -19,6 +19,7 @@
 #include "QualityControl/QcInfoLogger.h"
 
 using namespace o2::ccdb;
+using namespace std;
 
 namespace o2::quality_control::core
 {
@@ -41,55 +42,47 @@ void UserCodeInterface::enableCtpScalers(size_t runNumber, std::string ccdbUrl)
 {
   // TODO bail if we are in async
 
-  // TODO get the interval from config
-
-  // TODO we need the CCDB url here, how ?
-
   auto& ccdbManager = o2::ccdb::BasicCCDBManager::instance();
   ccdbManager.setURL("<CCDB URL>");
-
   mCtpFetcher.setupRun(runNumber, ccdbManager, getCurrentTimestamp(), false);
 
-  // switch
-//  ccdbManager.setURL("http://ali-qcdb-gpn.cern.ch:8083/");
-
-  int intervalMinutes = 1;
-
-  // call a first time
-  updateScalers();
-
-  // Start the periodic method call in a separate thread
-  std::thread periodicThread(&UserCodeInterface::regularCallback, this, intervalMinutes);
-
-  // Detach the thread so it runs independently
-  periodicThread.detach();
+  mScalersLastUpdate = std::chrono::steady_clock::time_point::min();
+  getScalers(); // initial value
 }
 
-void UserCodeInterface::regularCallback(int intervalMinutes) {
-  while (true) {
-    std::this_thread::sleep_for(std::chrono::minutes(intervalMinutes));
-    updateScalers();
-  }
-}
-
-void UserCodeInterface::updateScalers() {
+void UserCodeInterface::getScalers() {
   // TODO : WHY DO WE EVEN RETRIEVE REGULARLY AND NOT WHEN THE USER ASKS FOR IT ? AND IF IT IS LESS THAN A CERTAIN TIME WE TAKE THE LAST VALUE
   ILOG(Info, Devel) << " *-*-*-*-*- Update scalers " << ENDM;
 
   if(! mDatabase) {
-    ILOG(Error, Devel) << " database not set ! " << ENDM;
+    ILOG(Error, Devel) << "Database not set ! " << ENDM;
 
     return;
     // todo handle the case when database is not set
+  }
+
+  auto now = std::chrono::steady_clock::now();
+  auto minutesSinceLast = std::chrono::duration_cast<std::chrono::minutes>(now - mScalersLastUpdate);
+
+  // TODO get the interval from config
+  if (minutesSinceLast.count() < 1) {
+    ILOG(Debug, Devel) << "getScalers was called less than a minute ago, use the cached value" << ENDM;
+    return;
   }
 
   std::map<std::string, std::string> meta;
   void* rawResult = mDatabase->retrieveAny(typeid(o2::ctp::CTPRunScalers), "qc/CTP/Scalers", meta); // TODO make sure we get the last one.
   o2::ctp::CTPRunScalers* ctpScalers = static_cast<o2::ctp::CTPRunScalers*>(rawResult);
   mCtpFetcher.updateScalers(*ctpScalers);
+  mScalersLastUpdate = now;
 }
 
-using namespace std;
+double UserCodeInterface::getScalersValue(long timestamp, std::string sourceName, size_t runNumber)
+{
+  getScalers(); // from QCDB
+  auto& ccdbManager = o2::ccdb::BasicCCDBManager::instance();
+  return mCtpFetcher.fetchNoPuCorr(&ccdbManager, getCurrentTimestamp(), runNumber, sourceName);
+}
 
 void UserCodeInterface::setDatabase(std::unordered_map<std::string, std::string> dbConfig)
 {
@@ -110,11 +103,6 @@ void UserCodeInterface::setDatabase(std::unordered_map<std::string, std::string>
   mDatabase = repository::DatabaseFactory::create(dbConfig.at("implementation"));
   mDatabase->connect(dbConfig);
   ILOG(Info, Devel) << "Database that is going to be used > Implementation : " << dbConfig.at("implementation") << " / Host : " << dbConfig.at("host") << ENDM;
-}
-
-double UserCodeInterface::getScalersValue(long timestamp, std::string sourceName)
-{
-  return mCtpFetcher.fetchNoPuCorr(&ccdbManager, getCurrentTimestamp(), runNumber, sourceName);
 }
 
 } // namespace o2::quality_control::core

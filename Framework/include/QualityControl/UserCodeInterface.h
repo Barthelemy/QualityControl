@@ -58,15 +58,16 @@ class UserCodeInterface : public ConditionAccess
  private:
   /// \brief Just the callback for the thread for the scalers retrieval.
   void regularCallback(int intervalMinutes);
-  /// \brief Retrieve fresh scalers from the QCDB
-  void updateScalers();
+  /// \brief Retrieve fresh scalers from the QCDB (with cache)
+  void getScalers();
   CtpRateFetcher mCtpFetcher;
+  std::chrono::steady_clock::time_point  mScalersLastUpdate;
 
  protected:
   /// \brief Call it to enable the retrieval of CTP scalers and use `getScalers` later
   void enableCtpScalers(size_t runNumber, std::string ccdbUrl);
   /// \brief Get the scalers's value for the given source
-  double getScalersValue(long timestamp, std::string sourceName);
+  double getScalersValue(long timestamp, std::string sourceName, size_t runNumber);
 
   CustomParameters mCustomParameters;
   std::string mName;
